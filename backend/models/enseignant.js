@@ -1,19 +1,30 @@
-//on va creer un  bd non relationele on utilisons la biblio mongoose qelle permetre de le schema (structure de document.json ) et de la collection associe dans mongodb (model) et meme faire les operations de crud 
-//1st importer cette biblio 
-const mongoose = require("mongoose");
 
 
-const SchemaEnseignant = new mongoose.Schema(
-    {
-        nom: String,
-        prenom:String,
-        domaine : String,
-        grade: String ,
-        //ici type-> string c'est pour preciser le champ est du text et la unique : true pour que mongodb interdire d'avoir 2enseignants avec le meme email 
-        email : {type : String , unique : true}
+const mongoose = require('mongoose');
 
-    });
+const enseignantSchema = new mongoose.Schema({
+  nom: {
+    type: String,
+    required: true
+  },
+  prenom: {
+    type: String,
+    required: true
+  },
+  email: {
+    type: String,
+    required: true,
+    unique: true
+  },
+  password: {
+    type: String,
+    required: true
+  },
+  // Optional: You can add a role field if you want to track it in the DB
+  role: {
+    type: String,
+    default: 'enseignant'
+  }
+}, { timestamps: true });
 
-//on va ici creer le modele base sur ce schema
-
-module.exports = mongoose.model("enseignant",SchemaEnseignant);
+module.exports = mongoose.model('Enseignant', enseignantSchema);

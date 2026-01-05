@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>teachers</title>
+
+   <!-- font awesome cdn link  -->
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css">
+
+   <!-- custom css file link  -->
+   <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="header">
+   <section class="flex">
+
+      <a href="home.html" class="logo">LearniX</a>
+
+      <form action="search.html" method="post" class="search-form">
+         <input type="text" name="search_box" required placeholder="search courses..." maxlength="100">
+         <button type="submit" class="fas fa-search"></button>
+      </form>
+
+      <div class="icons">
+         <div id="menu-btn" class="fas fa-bars"></div>
+         <div id="search-btn" class="fas fa-search"></div>
+         <div id="user-btn" class="fas fa-user"></div>
+         <div id="toggle-btn" class="fas fa-sun"></div>
+      </div>
+
+      <div class="profile">
+         <img src="images/pic-1.jpg" class="image" alt="">
+         <h3 class="name">Username</h3>
+         <p class="role">Student</p>
+         <a href="profile.html" class="btn">view profile</a>
+         <div class="flex-btn">
+            <a href="login.html" class="option-btn">login</a>
+            <a href="register.html" class="option-btn">register</a>
+         </div>
+      </div>
+
+   </section>
+</header>
+
+<div class="side-bar">
+
+   <div id="close-btn">
+      <i class="fas fa-times"></i>
+   </div>
+
+   <div class="profile">
+      <img src="images/pic-1.jpg" class="image" alt="">
+      <h3 class="name">Username</h3>
+      <p class="role">Student</p>
+      <a href="profile.html" class="btn">view profile</a>
+   </div>
+
+   <nav class="navbar">
+      <a href="home.html"><i class="fas fa-home"></i><span>home</span></a>
+      <a href="about.html"><i class="fas fa-question"></i><span>about</span></a>
+      <a href="courses.html"><i class="fas fa-graduation-cap"></i><span>courses</span></a>
+      <a href="teachers.html"><i class="fas fa-chalkboard-user"></i><span>teachers</span></a>
+      <a href="contact.html"><i class="fas fa-headset"></i><span>contact us</span></a>
+   </nav>
+
+</div>
+
+<section class="teachers">
+
+   <h1 class="heading">expert teachers</h1>
+
+   <!-- ✅ Real search (no reload) -->
+   <form action="#" class="search-tutor" id="teacherSearchForm">
+      <input
+         type="text"
+         id="teacherSearchInput"
+         placeholder="Search by name or role (e.g., Chakib, UI/UX, Web)..."
+         maxlength="100"
+         autocomplete="off"
+      >
+      <button type="submit" class="fas fa-search" aria-label="search"></button>
+      <button type="button" class="fas fa-xmark" id="teacherSearchClear" aria-label="clear" title="Clear"></button>
+   </form>
+
+   <!-- Small helper line -->
+   <p id="teacherSearchMeta" style="margin:-0.5rem 0 2rem; font-size:1.45rem; opacity:.85;"></p>
+
+   <div class="box-container" id="teacherGrid">
+
+      <div class="box offer">
+         <h3>become a tutor</h3>
+         <p>Share your skills on LearniX, build your audience, and create structured playlists that help students learn faster.</p>
+         <a href="register.html" class="inline-btn">get started</a>
+      </div>
+
+      <!-- Teacher 1 -->
+      <div class="box teacher-card" data-name="mahlous chakib" data-role="full-stack developer">
+         <div class="tutor">
+            <img src="images/pic-2.jpg" alt="mahlous chakib">
+            <div>
+               <h3>mahlous chakib</h3>
+               <span>full-stack developer</span>
+            </div>
+         </div>
+         <p>total playlists : <span>6</span></p>
+         <p>total videos : <span>34</span></p>
+         <p>total likes : <span>2,410</span></p>
+         <a href="teacher_profile.html" class="inline-btn">view profile</a>
+      </div>
+
+      <!-- Teacher 2 -->
+      <div class="box teacher-card" data-name="mahlous chakib" data-role="front-end engineer">
+         <div class="tutor">
+            <img src="images/pic-3.jpg" alt="mahlous chakib">
+            <div>
+               <h3>mahlous chakib</h3>
+               <span>front-end engineer</span>
+            </div>
+         </div>
+         <p>total playlists : <span>5</span></p>
+         <p>total videos : <span>28</span></p>
+         <p>total likes : <span>1,980</span></p>
+         <a href="teacher_profile.html" class="inline-btn">view profile</a>
+      </div>
+
+      <!-- Teacher 3 -->
+      <div class="box teacher-card" data-name="mahlous chakib" data-role="ui ux mentor">
+         <div class="tutor">
+            <img src="images/pic-4.jpg" alt="mahlous chakib">
+            <div>
+               <h3>mahlous chakib</h3>
+               <span>UI/UX mentor</span>
+            </div>
+         </div>
+         <p>total playlists : <span>4</span></p>
+         <p>total videos : <span>19</span></p>
+         <p>total likes : <span>1,245</span></p>
+         <a href="teacher_profile.html" class="inline-btn">view profile</a>
+      </div>
+
+      <!-- Teacher 4 -->
+      <div class="box teacher-card" data-name="mahlous chakib" data-role="mobile developer">
+         <div class="tutor">
+            <img src="images/pic-5.jpg" alt="mahlous chakib">
+            <div>
+               <h3>mahlous chakib</h3>
+               <span>mobile developer</span>
+            </div>
+         </div>
+         <p>total playlists : <span>3</span></p>
+         <p>total videos : <span>15</span></p>
+         <p>total likes : <span>910</span></p>
+         <a href="teacher_profile.html" class="inline-btn">view profile</a>
+      </div>
+
+      <!-- Teacher 5 -->
+      <div class="box teacher-card" data-name="mahlous chakib" data-role="data & algorithms">
+         <div class="tutor">
+            <img src="images/pic-6.jpg" alt="mahlous chakib">
+            <div>
+               <h3>mahlous chakib</h3>
+               <span>data & algorithms</span>
+            </div>
+         </div>
+         <p>total playlists : <span>2</span></p>
+         <p>total videos : <span>14</span></p>
+         <p>total likes : <span>760</span></p>
+         <a href="teacher_profile.html" class="inline-btn">view profile</a>
+      </div>
+
+      <!-- Teacher 6 -->
+      <div class="box teacher-card" data-name="mahlous chakib" data-role="career & freelancing">
+         <div class="tutor">
+            <img src="images/pic-7.jpg" alt="mahlous chakib">
+            <div>
+               <h3>mahlous chakib</h3>
+               <span>career & freelancing</span>
+            </div>
+         </div>
+         <p>total playlists : <span>3</span></p>
+         <p>total videos : <span>12</span></p>
+         <p>total likes : <span>835</span></p>
+         <a href="teacher_profile.html" class="inline-btn">view profile</a>
+      </div>
+
+      <!-- Teacher 7 -->
+      <div class="box teacher-card" data-name="mahlous chakib" data-role="linux & devops">
+         <div class="tutor">
+            <img src="images/pic-8.jpg" alt="mahlous chakib">
+            <div>
+               <h3>mahlous chakib</h3>
+               <span>linux & devops</span>
+            </div>
+         </div>
+         <p>total playlists : <span>2</span></p>
+         <p>total videos : <span>11</span></p>
+         <p>total likes : <span>620</span></p>
+         <a href="teacher_profile.html" class="inline-btn">view profile</a>
+      </div>
+
+   </div>
+
+</section>
+
+<!-- custom js file link  -->
+<script src="js/script.js"></script>
+
+<!-- ✅ teachers page search (front-end filtering) -->
+<script>
+   const input = document.getElementById('teacherSearchInput');
+   const form = document.getElementById('teacherSearchForm');
+   const clearBtn = document.getElementById('teacherSearchClear');
+   const grid = document.getElementById('teacherGrid');
+   const meta = document.getElementById('teacherSearchMeta');
+
+   function getTeacherCards(){
+      return Array.from(grid.querySelectorAll('.teacher-card'));
+   }
+
+   function updateMeta(visibleCount, total){
+      if(!input.value.trim()){
+         meta.textContent = `Showing ${total} tutors.`;
+      }else{
+         meta.textContent = `Results: ${visibleCount} / ${total}`;
+      }
+   }
+
+   function filterTeachers(){
+      const q = (input.value || '').trim().toLowerCase();
+      const cards = getTeacherCards();
+      const total = cards.length;
+
+      let visible = 0;
+
+      cards.forEach(card => {
+         const name = (card.dataset.name || '').toLowerCase();
+         const role = (card.dataset.role || '').toLowerCase();
+         const text = (card.innerText || '').toLowerCase();
+
+         const match = !q || name.includes(q) || role.includes(q) || text.includes(q);
+
+         card.style.display = match ? '' : 'none';
+         if(match) visible++;
+      });
+
+      updateMeta(visible, total);
+   }
+
+   // Prevent reload on submit
+   form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      filterTeachers();
+   });
+
+   // Live search
+   input.addEventListener('input', filterTeachers);
+
+   // Clear
+   clearBtn.addEventListener('click', () => {
+      input.value = '';
+      input.focus();
+      filterTeachers();
+   });
+
+   // Init
+   filterTeachers();
+</script>
+
+</body>
+</html>

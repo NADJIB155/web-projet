@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>home</title>
+
+   <!-- font awesome cdn link  -->
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css">
+
+   <!-- custom css file link  -->
+   <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="header">
+   <section class="flex">
+
+      <a href="home.html" class="logo">LearniX</a>
+
+      <form action="search.html" method="post" class="search-form">
+         <input type="text" name="search_box" required placeholder="search courses..." maxlength="100">
+         <button type="submit" class="fas fa-search"></button>
+      </form>
+
+      <div class="icons">
+         <div id="menu-btn" class="fas fa-bars"></div>
+         <div id="search-btn" class="fas fa-search"></div>
+         <div id="user-btn" class="fas fa-user"></div>
+         <div id="toggle-btn" class="fas fa-sun"></div>
+      </div>
+
+      <div class="profile">
+         <img src="images/pic-1.jpg" class="image" alt="">
+         <h3 class="name">Username</h3>
+         <p class="role">Student</p>
+         <a href="profile.html" class="btn">view profile</a>
+         <div class="flex-btn">
+            <a href="login.html" class="option-btn">login</a>
+            <a href="register.html" class="option-btn">register</a>
+         </div>
+      </div>
+
+   </section>
+</header>
+
+<div class="side-bar">
+
+   <div id="close-btn">
+      <i class="fas fa-times"></i>
+   </div>
+
+   <div class="profile">
+      <img src="images/pic-1.jpg" class="image" alt="">
+      <h3 class="name">Username</h3>
+      <p class="role">Student</p>
+      <a href="profile.html" class="btn">view profile</a>
+   </div>
+
+   <nav class="navbar">
+      <a href="home.html"><i class="fas fa-home"></i><span>home</span></a>
+      <a href="about.html"><i class="fas fa-question"></i><span>about</span></a>
+      <a href="courses.html"><i class="fas fa-graduation-cap"></i><span>courses</span></a>
+      <a href="teachers.html"><i class="fas fa-chalkboard-user"></i><span>teachers</span></a>
+      <a href="contact.html"><i class="fas fa-headset"></i><span>contact us</span></a>
+   </nav>
+
+</div>
+
+<!-- HERO -->
+<section class="home-hero">
+   <div class="hero-content">
+      <div class="hero-left">
+         <span class="hero-badge"><i class="fas fa-sparkles"></i> Learn smarter with LearniX</span>
+
+         <h1>Upgrade your skills, one lesson at a time.</h1>
+
+         <p>
+            Learn with curated courses, track your progress, and get support from expert tutors.
+            Start today and build real projects.
+         </p>
+
+         <div class="hero-actions">
+            <a href="courses.html" class="btn hero-btn"><i class="fas fa-graduation-cap"></i> Browse Courses</a>
+            <a href="teachers.html" class="option-btn hero-btn"><i class="fas fa-chalkboard-user"></i> Find Tutors</a>
+         </div>
+
+         <div class="hero-mini-stats">
+            <div class="mini-stat">
+               <i class="fas fa-play-circle"></i>
+               <div>
+                  <h3>120+</h3>
+                  <p>video lessons</p>
+               </div>
+            </div>
+
+            <div class="mini-stat">
+               <i class="fas fa-users"></i>
+               <div>
+                  <h3>2,000+</h3>
+                  <p>learners</p>
+               </div>
+            </div>
+
+            <div class="mini-stat">
+               <i class="fas fa-certificate"></i>
+               <div>
+                  <h3>Certificates</h3>
+                  <p>on completion</p>
+               </div>
+            </div>
+         </div>
+      </div>
+
+      <div class="hero-right">
+         <div class="hero-card">
+            <h3>Continue learning</h3>
+            <p>Pick up where you left off</p>
+
+            <div class="progress-card">
+               <div class="progress-top">
+                  <span class="progress-title">HTML Basics</span>
+                  <span class="progress-percent">68%</span>
+               </div>
+
+               <div class="progress-bar">
+                  <span class="progress-fill" style="width:68%"></span>
+               </div>
+
+               <div class="progress-actions">
+                  <a href="watch-video.html" class="inline-btn"><i class="fas fa-play"></i> Resume</a>
+                  <a href="playlist.html" class="inline-option-btn"><i class="far fa-bookmark"></i> Playlist</a>
+               </div>
+            </div>
+
+            <div class="quick-links">
+               <a href="profile.html"><i class="fas fa-id-badge"></i><span>Profile</span></a>
+               <a href="courses.html"><i class="fas fa-layer-group"></i><span>All Courses</span></a>
+               <a href="contact.html"><i class="fas fa-headset"></i><span>Support</span></a>
+            </div>
+         </div>
+      </div>
+   </div>
+</section>
+
+<!-- FEATURED COURSES -->
+<section class="courses home-featured">
+   <div class="home-section-head">
+      <h1 class="heading">featured courses</h1>
+      <a href="courses.html" class="inline-option-btn">view all</a>
+   </div>
+
+   <div class="box-container">
+
+      <div class="box">
+         <div class="tutor">
+            <img src="images/pic-2.jpg" alt="">
+            <div class="info">
+               <h3>mahlous chakib</h3>
+               <span>updated recently</span>
+            </div>
+         </div>
+         <div class="thumb">
+            <img src="images/thumb-1.png" alt="">
+            <span>10 videos</span>
+         </div>
+         <h3 class="title">complete HTML tutorial</h3>
+         <a href="playlist.html" class="inline-btn">view playlist</a>
+      </div>
+
+      <div class="box">
+         <div class="tutor">
+            <img src="images/pic-3.jpg" alt="">
+            <div class="info">
+               <h3>mahlous chakib</h3>
+               <span>updated recently</span>
+            </div>
+         </div>
+         <div class="thumb">
+            <img src="images/thumb-2.png" alt="">
+            <span>10 videos</span>
+         </div>
+         <h3 class="title">complete CSS tutorial</h3>
+         <a href="playlist.html" class="inline-btn">view playlist</a>
+      </div>
+
+      <div class="box">
+         <div class="tutor">
+            <img src="images/pic-4.jpg" alt="">
+            <div class="info">
+               <h3>mahlous chakib</h3>
+               <span>updated recently</span>
+            </div>
+         </div>
+         <div class="thumb">
+            <img src="images/thumb-3.png" alt="">
+            <span>10 videos</span>
+         </div>
+         <h3 class="title">complete JS tutorial</h3>
+         <a href="playlist.html" class="inline-btn">view playlist</a>
+      </div>
+
+      <div class="box">
+         <div class="tutor">
+            <img src="images/pic-5.jpg" alt="">
+            <div class="info">
+               <h3>mahlous chakib</h3>
+               <span>updated recently</span>
+            </div>
+         </div>
+         <div class="thumb">
+            <img src="images/thumb-4.png" alt="">
+            <span>10 videos</span>
+         </div>
+         <h3 class="title">complete Bootstrap tutorial</h3>
+         <a href="playlist.html" class="inline-btn">view playlist</a>
+      </div>
+
+      <div class="box">
+         <div class="tutor">
+            <img src="images/pic-6.jpg" alt="">
+            <div class="info">
+               <h3>mahlous chakib</h3>
+               <span>updated recently</span>
+            </div>
+         </div>
+         <div class="thumb">
+            <img src="images/thumb-5.png" alt="">
+            <span>10 videos</span>
+         </div>
+         <h3 class="title">complete jQuery tutorial</h3>
+         <a href="playlist.html" class="inline-btn">view playlist</a>
+      </div>
+
+      <div class="box">
+         <div class="tutor">
+            <img src="images/pic-7.jpg" alt="">
+            <div class="info">
+               <h3>mahlous chakib</h3>
+               <span>updated recently</span>
+            </div>
+         </div>
+         <div class="thumb">
+            <img src="images/thumb-6.png" alt="">
+            <span>10 videos</span>
+         </div>
+         <h3 class="title">complete SASS tutorial</h3>
+         <a href="playlist.html" class="inline-btn">view playlist</a>
+      </div>
+
+   </div>
+</section>
+
+<!-- BECOME A TUTOR (only this block, clean UI) -->
+<section class="home-cta">
+   <div class="cta-box">
+      <div class="cta-left">
+         <h2>Become a tutor on LearniX</h2>
+         <p>
+            Share your knowledge, grow your audience, and help students reach their goals.
+            Create playlists, upload content, and build your teaching profile.
+         </p>
+         <div class="cta-actions">
+            <a href="register.html" class="btn"><i class="fas fa-bolt"></i> Get started</a>
+            <a href="teachers.html" class="inline-option-btn"><i class="fas fa-users"></i> Explore tutors</a>
+         </div>
+      </div>
+
+      <div class="cta-right">
+         <div class="cta-points">
+            <div class="point">
+               <i class="fas fa-layer-group"></i>
+               <div>
+                  <h3>Create playlists</h3>
+                  <p>Organize lessons and topics clearly.</p>
+               </div>
+            </div>
+
+            <div class="point">
+               <i class="fas fa-chart-line"></i>
+               <div>
+                  <h3>Reach more students</h3>
+                  <p>Get discovered through categories.</p>
+               </div>
+            </div>
+
+            <div class="point">
+               <i class="fas fa-shield-halved"></i>
+               <div>
+                  <h3>Trusted platform</h3>
+                  <p>Professional layout & learning flow.</p>
+               </div>
+            </div>
+         </div>
+      </div>
+   </div>
+</section>
+
+<!-- custom js file link  -->
+<script src="js/script.js"></script>
+
+</body>
+</html>

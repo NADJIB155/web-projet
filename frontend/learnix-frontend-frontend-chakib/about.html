@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>about us</title>
+
+   <!-- font awesome cdn link  -->
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css">
+
+   <!-- custom css file link  -->
+   <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="header">
+   <section class="flex">
+
+      <a href="home.html" class="logo">LearniX</a>
+
+      <form action="search.html" method="post" class="search-form">
+         <input type="text" name="search_box" required placeholder="search courses..." maxlength="100">
+         <button type="submit" class="fas fa-search"></button>
+      </form>
+
+      <div class="icons">
+         <div id="menu-btn" class="fas fa-bars"></div>
+         <div id="search-btn" class="fas fa-search"></div>
+         <div id="user-btn" class="fas fa-user"></div>
+         <div id="toggle-btn" class="fas fa-sun"></div>
+      </div>
+
+      <!-- dropdown (shown only when user clicks icon - script.js toggles .active) -->
+      <div class="profile">
+         <img src="images/pic-1.jpg" class="image" alt="">
+         <h3 class="name">Username</h3>
+         <p class="role">Student</p>
+         <a href="profile.html" class="btn">view profile</a>
+         <div class="flex-btn">
+            <a href="login.html" class="option-btn">login</a>
+            <a href="register.html" class="option-btn">register</a>
+         </div>
+      </div>
+
+   </section>
+</header>
+
+<div class="side-bar">
+
+   <div id="close-btn">
+      <i class="fas fa-times"></i>
+   </div>
+
+   <div class="profile">
+      <img src="images/pic-1.jpg" class="image" alt="">
+      <h3 class="name">Username</h3>
+      <p class="role">Student</p>
+      <a href="profile.html" class="btn">view profile</a>
+   </div>
+
+   <nav class="navbar">
+      <a href="home.html"><i class="fas fa-home"></i><span>home</span></a>
+      <a href="about.html"><i class="fas fa-question"></i><span>about</span></a>
+      <a href="courses.html"><i class="fas fa-graduation-cap"></i><span>courses</span></a>
+      <a href="teachers.html"><i class="fas fa-chalkboard-user"></i><span>teachers</span></a>
+      <a href="contact.html"><i class="fas fa-headset"></i><span>contact us</span></a>
+   </nav>
+
+</div>
+
+<section class="about">
+
+   <div class="row">
+
+      <div class="image">
+         <img src="images/about-img.svg" alt="">
+      </div>
+
+      <div class="content">
+         <h3>Why choose LearniX?</h3>
+         <p>
+            LearniX is built for learners who want real, practical progress — not just videos.
+            You get structured learning paths, bite-sized lessons, guided projects, and clear next steps.
+            Whether you're starting from zero or leveling up, LearniX helps you stay consistent and confident.
+         </p>
+         <p>
+            Our goal is simple: make learning feel smooth, modern, and motivating — with expert content and a clean experience on every device.
+         </p>
+         <a href="courses.html" class="inline-btn">Explore courses</a>
+      </div>
+
+   </div>
+
+   <div class="box-container">
+
+      <div class="box">
+         <i class="fas fa-graduation-cap"></i>
+         <div>
+            <h3>30+</h3>
+            <p>career-focused courses</p>
+         </div>
+      </div>
+
+      <div class="box">
+         <i class="fas fa-user-graduate"></i>
+         <div>
+            <h3>1,200+</h3>
+            <p>active learners</p>
+         </div>
+      </div>
+
+      <div class="box">
+         <i class="fas fa-chalkboard-user"></i>
+         <div>
+            <h3>45+</h3>
+            <p>expert tutors</p>
+         </div>
+      </div>
+
+      <div class="box">
+         <i class="fas fa-briefcase"></i>
+         <div>
+            <h3>82%</h3>
+            <p>skill-to-job readiness</p>
+         </div>
+      </div>
+
+   </div>
+
+</section>
+
+<section class="reviews">
+
+   <h1 class="heading">student reviews</h1>
+
+   <div class="box-container">
+
+      <div class="box">
+         <p>
+            LearniX finally gave me a clear roadmap. I stopped jumping between random tutorials and started following a structured path.
+            The UI is clean, and the course lessons are straight to the point.
+         </p>
+         <div class="student">
+            <img src="images/pic-2.jpg" alt="">
+            <div>
+               <h3>Yassin B.</h3>
+               <div class="stars">
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+               </div>
+            </div>
+         </div>
+      </div>
+
+      <div class="box">
+         <p>
+            The platform feels modern and fast. I like the small lessons and the way each course is organized.
+            I can study 20–30 minutes per day and still see real progress.
+         </p>
+         <div class="student">
+            <img src="images/pic-3.jpg" alt="">
+            <div>
+               <h3>Amine K.</h3>
+               <div class="stars">
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star-half-alt"></i>
+               </div>
+            </div>
+         </div>
+      </div>
+
+      <div class="box">
+         <p>
+            I really enjoyed the projects. It’s not only theory — you actually build things.
+            The “next steps” after each module keep you motivated.
+         </p>
+         <div class="student">
+            <img src="images/pic-4.jpg" alt="">
+            <div>
+               <h3>Sarah M.</h3>
+               <div class="stars">
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+               </div>
+            </div>
+         </div>
+      </div>
+
+      <div class="box">
+         <p>
+            The search + playlists are super useful. I can quickly find what I need and save lessons for later.
+            Also, dark mode looks great.
+         </p>
+         <div class="student">
+            <img src="images/pic-5.jpg" alt="">
+            <div>
+               <h3>Rayan A.</h3>
+               <div class="stars">
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star-half-alt"></i>
+               </div>
+            </div>
+         </div>
+      </div>
+
+      <div class="box">
+         <p>
+            LearniX helped me stay consistent. The platform is simple, the design is comfortable,
+            and the explanations are clear. Perfect for beginners.
+         </p>
+         <div class="student">
+            <img src="images/pic-6.jpg" alt="">
+            <div>
+               <h3>Nour H.</h3>
+               <div class="stars">
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+               </div>
+            </div>
+         </div>
+      </div>
+
+      <div class="box">
+         <p>
+            Clean layout, easy navigation, and no distractions. I especially like how the courses are grouped and how quickly I can continue where I stopped.
+         </p>
+         <div class="student">
+            <img src="images/pic-7.jpg" alt="">
+            <div>
+               <h3>Imad Z.</h3>
+               <div class="stars">
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star"></i>
+                  <i class="fas fa-star-half-alt"></i>
+               </div>
+            </div>
+         </div>
+      </div>
+
+   </div>
+
+</section>
+
+<!-- custom js file link  -->
+<script src="js/script.js"></script>
+
+</body>
+</html>

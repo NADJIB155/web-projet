@@ -9,7 +9,7 @@ router.post("/",Controller.ajoutEnseignant);
 router.get("/",Controller.getEnseignant);
 router.get("/:id",Controller.getEnseignantById);
 router.put("/:id",Controller.updateEnseignant);
-router.delete("/:",Controller.deleteEnseignant);
+router.delete("/:id",Controller.deleteEnseignant);
 
 
 module.exports = router ;
