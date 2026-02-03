@@ -17,4 +17,7 @@ router.post('/submit', protect, authorize('etudiant'), quizController.submitQuiz
 // GET /api/quizzes/:courseId (Everyone who is logged in can view)
 router.get('/:courseId', protect, quizController.getQuizzesByCourse);
 
+// DELETE /api/quizzes/:id (Only Teachers can delete)
+router.delete('/:id', protect, authorize('enseignant'), quizController.deleteQuiz);
+
 module.exports = router;

@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LearniX - Inbox</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Inbox specific styles */
+        .inbox-container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 2rem;
+        }
+
+        .inbox-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: var(--border-strong);
+        }
+
+        .inbox-header h1 {
+            font-size: 2.8rem;
+            color: var(--text);
+            font-weight: 800;
+        }
+
+        .inbox-header .btn {
+            width: auto;
+            margin: 0;
+        }
+
+        .conversations-grid {
+            display: grid;
+            gap: 1.2rem;
+        }
+
+        .conversation-item {
+            background: var(--card);
+            border: var(--border);
+            border-radius: var(--radius);
+            padding: 1.8rem;
+            cursor: pointer;
+            transition: all var(--transition);
+            box-shadow: var(--shadow-sm);
+            display: grid;
+            grid-template-columns: 1fr auto;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .conversation-item:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--main-color);
+        }
+
+        .conversation-info {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            flex: 1;
+        }
+
+        .conversation-avatar {
+            width: 5rem;
+            height: 5rem;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--main-color), var(--main-dark));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            flex-shrink: 0;
+        }
+
+        .conversation-details {
+            flex: 1;
+        }
+
+        .conversation-name {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--text);
+            margin-bottom: 0.4rem;
+        }
+
+        .conversation-preview {
+            font-size: 1.4rem;
+            color: var(--muted);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 500px;
+        }
+
+        .conversation-meta {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 0.8rem;
+        }
+
+        .conversation-time {
+            font-size: 1.3rem;
+            color: var(--muted);
+        }
+
+        .unread-badge {
+            background: var(--red);
+            color: white;
+            border-radius: 50%;
+            width: 3rem;
+            height: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.4rem;
+        }
+
+        .empty-inbox {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: var(--card);
+            border: var(--border);
+            border-radius: var(--radius);
+            color: var(--muted);
+        }
+
+        .empty-inbox i {
+            font-size: 4rem;
+            color: var(--main-soft);
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .empty-inbox h3 {
+            font-size: 1.8rem;
+            color: var(--text);
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-inbox p {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .new-message-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .search-box {
+            background: var(--card);
+            border: var(--border);
+            border-radius: var(--radius-sm);
+            padding: 1.2rem 1.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .search-box input {
+            flex: 1;
+            background: none;
+            border: none;
+            color: var(--text);
+            font-size: 1.5rem;
+            outline: none;
+        }
+
+        .search-box input::placeholder {
+            color: var(--muted);
+        }
+
+        .search-box i {
+            color: var(--muted);
+            font-size: 1.6rem;
+        }
+
+        @media (max-width: 768px) {
+            .inbox-container {
+                padding: 1rem;
+            }
+
+            .conversation-item {
+                grid-template-columns: 1fr;
+                padding: 1.2rem;
+            }
+
+            .conversation-preview {
+                max-width: 100%;
+            }
+
+            .conversation-meta {
+                flex-direction: row;
+                justify-content: space-between;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header class="header">
+    <section class="flex">
+        <a href="home.html" class="logo">LearniX</a>
+        <form action="courses.html" method="get" class="search-form">
+            <input type="text" name="search" required placeholder="search courses..." maxlength="100">
+            <button type="submit" class="fas fa-search"></button>
+        </form>
+        <div class="icons">
+            <div id="menu-btn" class="fas fa-bars"></div>
+            <div id="search-btn" class="fas fa-search"></div>
+            <div id="user-btn" class="fas fa-user"></div>
+            <div id="toggle-btn" class="fas fa-sun"></div>
+        </div>
+        <div class="profile">
+            <img src="images/pic-1.jpg" class="image" alt="">
+            <h3 class="name">Guest</h3>
+            <p class="role">Student</p>
+            <a href="profile.html" class="btn">view profile</a>
+        </div>
+    </section>
+</header>
+
+<div class="side-bar">
+    <div id="close-btn"><i class="fas fa-times"></i></div>
+    <div class="profile">
+        <img src="images/pic-1.jpg" class="image" alt="">
+        <h3 class="name">Guest</h3>
+        <p class="role">Student</p>
+        <a href="profile.html" class="btn">view profile</a>
+    </div>
+    <nav class="navbar">
+        <a href="home.html"><i class="fas fa-home"></i><span>home</span></a>
+        <a href="dashboard.html"><i class="fas fa-chart-line"></i><span>dashboard</span></a>
+        <a href="courses.html"><i class="fas fa-graduation-cap"></i><span>courses</span></a>
+        <a href="teachers.html"><i class="fas fa-chalkboard-user"></i><span>teachers</span></a>
+        <a href="inbox.html"><i class="fas fa-envelope"></i><span>messages</span></a>
+        <a href="contact.html"><i class="fas fa-headset"></i><span>contact us</span></a>
+    </nav>
+    
+    <div class="sidebar-header">Inbox</div>
+    <div id="users-list">
+        Loading conversations...
+    </div>
+
+</div>
+
+<section class="inbox-container">
+    <div class="inbox-header">
+        <h1><i class="fas fa-inbox"></i> Inbox</h1>
+        <button class="btn new-message-btn" id="new-message-btn">
+            <i class="fas fa-plus"></i> New Message
+        </button>
+    </div>
+
+    <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input type="text" id="search-input" placeholder="Search conversations...">
+    </div>
+
+    <div class="conversations-grid" id="conversations-grid">
+        <div class="empty-inbox">
+            <i class="fas fa-inbox"></i>
+            <h3>No conversations yet</h3>
+            <p>Start a new conversation with a teacher or student</p>
+            <button class="btn new-message-btn" id="empty-new-btn">
+                <i class="fas fa-plus"></i> Start Conversation
+            </button>
+        </div>
+    </div>
+</section>
+
+<footer class="footer">
+    <p>&copy; 2026 LearniX. All rights reserved. <span>Made with ❤️ by Team LearniX</span></p>
+</footer>
+
+<script src="js/script.js"></script>
+<script>
+  const API_BASE = 'https://wv7pc13r-5000.euw.devtunnels.ms';
+
+    // Get current user
+    const currentUser = JSON.parse(localStorage.getItem('user'));
+    const token = localStorage.getItem('token');
+
+    if (!currentUser || !token) {
+        window.location.href = 'login.html';
+    }
+
+    const conversationsGrid = document.getElementById('conversations-grid');
+    const searchInput = document.getElementById('search-input');
+    const newMessageBtn = document.getElementById('new-message-btn');
+    const emptyNewBtn = document.getElementById('empty-new-btn'); // Vérifie si ce bouton existe dans ton HTML
+
+    // Format time difference (CORRIGÉ pour éviter "Invalid Date")
+    function formatTime(date) {
+        if (!date) return "";
+        const now = new Date();
+        const msgTime = new Date(date);
+        
+        // Si la date est invalide, on retourne rien ou un texte par défaut
+        if (isNaN(msgTime.getTime())) return "Récemment";
+
+        const diff = now - msgTime;
+        const hours = Math.floor(diff / (1000 * 60 * 60));
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+        if (hours < 1) {
+            return 'À l\'instant';
+        } else if (hours < 24) {
+            return `Il y a ${hours}h`;
+        } else if (days < 7) {
+            return `Il y a ${days}j`;
+        } else {
+            return msgTime.toLocaleDateString();
+        }
+    }
+
+    // Load conversations (Inbox)
+    async function loadConversations() {
+        try {
+            const res = await fetch(`${API_BASE}/api/messages/inbox/all`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (!res.ok) throw new Error('Failed to load conversations');
+
+            const conversations = await res.json();
+
+            // Si aucune conversation
+            if (!conversations || conversations.length === 0) {
+                conversationsGrid.innerHTML = `
+                    <div class="empty-inbox" style="text-align:center; padding: 40px;">
+                        <i class="fas fa-inbox" style="font-size: 3em; color: gray;"></i>
+                        <h3>Aucune conversation</h3>
+                        <p>Commencez à discuter avec un professeur ou un étudiant.</p>
+                        <button class="btn new-message-btn" onclick="showContactSelector()" style="padding:10px 20px; margin-top:10px; cursor:pointer;">
+                            <i class="fas fa-plus"></i> Nouvelle Conversation
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            conversationsGrid.innerHTML = '';
+
+            // Afficher chaque conversation
+            for (const conv of conversations) {
+                // L'ID de l'interlocuteur est stocké dans conv._id (grâce au $group de MongoDB)
+                const otherUserId = conv._id; 
+                let userName = 'Utilisateur';
+
+                // On essaie de récupérer le nom (optionnel, sinon on affiche juste "Utilisateur")
+                // Note: Tu peux créer une route dédiée pour récupérer les infos user par ID si besoin
+                // Pour l'instant, on affiche le message directement
+                
+                const item = document.createElement('div');
+                item.className = 'conversation-item';
+                // Style basique pour la liste (si pas dans ton CSS)
+                item.style.cssText = "background: white; padding: 15px; border-radius: 8px; margin-bottom: 10px; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: transform 0.2s;";
+                item.onmouseover = () => item.style.transform = "translateY(-2px)";
+                item.onmouseout = () => item.style.transform = "translateY(0)";
+
+                item.onclick = () => {
+                    window.location.href = `chat.html?userId=${otherUserId}`;
+                };
+
+                const timeStr = formatTime(conv.lastTime || conv.timestamp); // Gère les deux cas
+
+                // Contenu de la carte
+                item.innerHTML = `
+                    <div class="conversation-info" style="display:flex; align-items:center;">
+                        <div class="conversation-avatar" style="width: 40px; height: 40px; background: #e9ecef; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px;">
+                            <i class="fas fa-user" style="color: #555;"></i>
+                        </div>
+                        <div class="conversation-details" style="flex:1;">
+                            <div class="conversation-name" style="font-weight: bold;">Conversation</div> 
+                            <div class="conversation-preview" style="color: gray; font-size: 0.9em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px;">
+                                ${conv.lastMessage || '...'}
+                            </div>
+                        </div>
+                        <div class="conversation-meta">
+                            <div class="conversation-time" style="font-size: 0.8em; color: #888;">${timeStr}</div>
+                        </div>
+                    </div>
+                `;
+                conversationsGrid.appendChild(item);
+                
+                // Petit bonus : Charger le vrai nom si possible
+                // (Nécessite une route API qui retourne les infos d'un user par son ID)
+                fetch(`${API_BASE}/api/auth/user/${otherUserId}`) 
+                   .then(r => r.json())
+                   .then(u => {
+                       if(u.nom) item.querySelector('.conversation-name').textContent = `${u.nom} ${u.prenom}`;
+                   }).catch(e => {}); // On ignore les erreurs silencieusement
+            }
+        } catch (err) {
+            console.error('Error loading conversations:', err);
+            conversationsGrid.innerHTML = `<p style="color:red; text-align:center;">Erreur de chargement: ${err.message}</p>`;
+        }
+    }
+
+    // New message button actions
+    if(newMessageBtn) newMessageBtn.addEventListener('click', showContactSelector);
+    if(emptyNewBtn) emptyNewBtn.addEventListener('click', showContactSelector);
+
+    // Show contact selector modal
+    function showContactSelector() {
+        const modal = document.createElement('div');
+        modal.style.cssText = `
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); display: flex; align-items: center;
+            justify-content: center; z-index: 5000; backdrop-filter: blur(4px);
+        `;
+        
+        modal.innerHTML = `
+            <div style="background: white; border-radius: 12px; padding: 2rem; width: min(500px, 90%); max-height: 70vh; overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h2 style="font-size: 1.5rem; font-weight: bold; margin: 0;">Nouvelle Conversation</h2>
+                    <button id="close-modal" style="background: none; border: none; font-size: 2rem; cursor: pointer; color: #888;">&times;</button>
+                </div>
+                
+                <p style="color: #666; margin-bottom: 1rem;">Sélectionnez une personne pour discuter :</p>
+                
+                <div id="contact-list" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    <p style="text-align: center; color: #888;">Chargement des contacts...</p>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        
+        // Fermeture
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) modal.remove();
+        });
+        modal.querySelector('#close-modal').onclick = () => modal.remove();
+        
+        loadContactsForMessage();
+    }
+
+    // Charger les contacts dans la modale
+    async function loadContactsForMessage() {
+        // CORRECTION IMPORTANTE ICI : getElementById
+        const list = document.getElementById('contact-list'); 
+
+        if (!list) return console.error("Erreur: ID 'contact-list' introuvable");
+
+        try {
+            // Récupère le rôle de l'utilisateur connecté
+            const myRole = currentUser.role || 'etudiant'; // valeur par défaut au cas où
+            
+            const res = await fetch(`${API_BASE}/api/auth/contacts/${myRole}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (!res.ok) throw new Error("Erreur serveur");
+            const contacts = await res.json();
+
+            list.innerHTML = ''; // Vide le message de chargement
+
+            if (!contacts || contacts.length === 0) {
+                list.innerHTML = '<p style="text-align:center; color:#888;">Aucun contact trouvé.</p>';
+                return;
+            }
+
+            contacts.forEach(contact => {
+                const div = document.createElement('div');
+                div.style.cssText = "padding: 12px; border-bottom: 1px solid #f0f0f0; cursor: pointer; display: flex; align-items: center; transition: background 0.2s;";
+                div.onmouseover = () => div.style.background = "#f8f9fa";
+                div.onmouseout = () => div.style.background = "white";
+
+                div.innerHTML = `
+                    <div style="width: 35px; height: 35px; background: #007bff; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 12px; font-weight: bold; font-size: 14px;">
+                        ${contact.nom ? contact.nom.charAt(0).toUpperCase() : '?'}
+                    </div>
+                    <div>
+                        <div style="font-weight: 600; color: #333;">${contact.nom} ${contact.prenom}</div>
+                        <div style="font-size: 0.8em; color: #888;">${contact.email}</div>
+                    </div>
+                `;
+                
+                div.onclick = () => {
+                    // Redirection vers le chat avec l'ID
+                    window.location.href = `chat.html?userId=${contact._id}`;
+                };
+                
+                list.appendChild(div);
+            });
+
+        } catch (err) {
+            console.error(err);
+            list.innerHTML = '<p style="color:red; text-align:center;">Impossible de charger les contacts.</p>';
+        }
+    }
+
+    // Lancer le chargement
+    loadConversations();
+</script>
+</body>
+</html>

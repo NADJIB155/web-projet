@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
    <meta charset="UTF-8">
    <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -12,23 +13,44 @@
    <!-- custom css file link  -->
    <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
 
-<header class="header">
-   <section class="flex">
+   <header class="header">
+      <section class="flex">
 
-      <a href="home.html" class="logo">LearniX</a>
+         <a href="home.html" class="logo">LearniX</a>
 
-      <form action="search.html" method="post" class="search-form">
-         <input type="text" name="search_box" required placeholder="search courses..." maxlength="100">
-         <button type="submit" class="fas fa-search"></button>
-      </form>
+         <form action="courses.html" method="get" class="search-form">
+            <input type="text" name="search" required placeholder="search courses..." maxlength="100">
+            <button type="submit" class="fas fa-search"></button>
+         </form>
 
-      <div class="icons">
-         <div id="menu-btn" class="fas fa-bars"></div>
-         <div id="search-btn" class="fas fa-search"></div>
-         <div id="user-btn" class="fas fa-user"></div>
-         <div id="toggle-btn" class="fas fa-sun"></div>
+         <div class="icons">
+            <div id="menu-btn" class="fas fa-bars"></div>
+            <div id="search-btn" class="fas fa-search"></div>
+            <div id="user-btn" class="fas fa-user"></div>
+            <div id="toggle-btn" class="fas fa-sun"></div>
+         </div>
+
+         <div class="profile">
+            <img src="images/pic-1.jpg" class="image" alt="">
+            <h3 class="name">Username</h3>
+            <p class="role">Student</p>
+            <a href="profile.html" class="btn">view profile</a>
+            <div class="flex-btn">
+               <a href="login.html" class="option-btn">login</a>
+               <a href="register.html" class="option-btn">register</a>
+            </div>
+         </div>
+
+      </section>
+   </header>
+
+   <div class="side-bar">
+
+      <div id="close-btn">
+         <i class="fas fa-times"></i>
       </div>
 
       <div class="profile">
@@ -36,70 +58,147 @@
          <h3 class="name">Username</h3>
          <p class="role">Student</p>
          <a href="profile.html" class="btn">view profile</a>
-         <div class="flex-btn">
-            <a href="login.html" class="option-btn">login</a>
-            <a href="register.html" class="option-btn">register</a>
+      </div>
+
+      <nav class="navbar">
+         <a href="home.html"><i class="fas fa-home"></i><span>home</span></a>
+         <a href="dashboard.html"><i class="fas fa-chart-line"></i><span>dashboard</span></a>
+         <a href="about.html"><i class="fas fa-question"></i><span>about</span></a>
+         <a href="courses.html"><i class="fas fa-graduation-cap"></i><span>courses</span></a>
+         <a href="teachers.html"><i class="fas fa-chalkboard-user"></i><span>teachers</span></a>
+         <a href="inbox.html"><i class="fas fa-envelope"></i><span>messages</span></a>
+         <a href="contact.html"><i class="fas fa-headset"></i><span>contact us</span></a>
+      </nav>
+
+   </div>
+
+   <section class="teacher-profile">
+
+      <h1 class="heading">teacher profile</h1>
+
+      <div class="details">
+
+         <div class="tutor">
+            <img src="images/pic-2.jpg" alt="" id="teacherImage">
+            <h3 id="teacherName">Loading...</h3>
+            <span id="teacherRole">...</span>
+         </div>
+
+         <p style="margin: 1.2rem auto 0; max-width: 72rem; font-size: 1.6rem; line-height: 1.9; color: var(--muted);"
+            id="teacherBio">
+            Loading teacher information...
+         </p>
+
+         <div class="flex">
+            <p>Total courses : <span id="totalCourses">0</span></p>
+            <p>Total students : <span id="totalStudents">0</span></p>
+            <p>Member since : <span id="memberSince">...</span></p>
+         </div>
+
+         <a href="teachers.html" class="inline-btn">back to teachers</a>
+
+      </div>
+
+      <div class="courses" style="margin-top:3rem;">
+         <h1 class="heading">courses by this teacher</h1>
+         <div class="box-container" id="teacherCourses">
+            <p style="text-align:center;">Loading courses...</p>
          </div>
       </div>
 
    </section>
-</header>
 
-<div class="side-bar">
+   <script src="js/script.js"></script>
+   <script>
+      document.addEventListener('DOMContentLoaded', async () => {
+         const urlParams = new URLSearchParams(window.location.search);
+         const teacherId = urlParams.get('id');
 
-   <div id="close-btn">
-      <i class="fas fa-times"></i>
-   </div>
+         if (!teacherId) {
+            showToast("Teacher ID missing", "error");
+            setTimeout(() => window.location.href = 'teachers.html', 2000);
+            return;
+         }
 
-   <div class="profile">
-      <img src="images/pic-1.jpg" class="image" alt="">
-      <h3 class="name">Username</h3>
-      <p class="role">Student</p>
-      <a href="profile.html" class="btn">view profile</a>
-   </div>
+         try {
+            // 1. Récupérer les infos du prof (Route corrigée)
+            const res = await fetch(`http://localhost:5000/enseignant/${teacherId}`);
+            
+            if (!res.ok) {
+               throw new Error("Teacher not found");
+            }
+            
+            const teacher = await res.json();
 
-   <nav class="navbar">
-      <a href="home.html"><i class="fas fa-home"></i><span>home</span></a>
-      <a href="about.html"><i class="fas fa-question"></i><span>about</span></a>
-      <a href="courses.html"><i class="fas fa-graduation-cap"></i><span>courses</span></a>
-      <a href="teachers.html"><i class="fas fa-chalkboard-user"></i><span>teachers</span></a>
-      <a href="contact.html"><i class="fas fa-headset"></i><span>contact us</span></a>
-   </nav>
+            // ✅ CORRECTION : On a supprimé la vérification stricte du rôle 
+            // pour éviter les erreurs si c'est écrit "Enseignant" avec une majuscule.
 
-</div>
+            // 2. Afficher les infos
+            document.getElementById('teacherName').textContent = `${teacher.nom} ${teacher.prenom}`;
+            document.getElementById('teacherRole').textContent = teacher.specialite || teacher.role || 'Teacher';
 
-<section class="teacher-profile">
+            if (teacher.image) {
+               // Gestion image locale ou URL complète
+               document.getElementById('teacherImage').src = teacher.image.startsWith('http') 
+                  ? teacher.image 
+                  : `http://localhost:5000/${teacher.image}`;
+            }
 
-   <h1 class="heading">teacher profile</h1>
+            document.getElementById('teacherBio').textContent = teacher.bio || "No bio available.";
+            
+            if (teacher.createdAt) {
+               const date = new Date(teacher.createdAt);
+               document.getElementById('memberSince').textContent = date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+            }
 
-   <div class="details">
+            // 3. Récupérer les cours de ce prof (Route avec filtre)
+            const coursesRes = await fetch(`http://localhost:5000/api/cours?enseignant=${teacherId}`);
+            const courses = await coursesRes.json();
 
-      <div class="tutor">
-         <img src="images/pic-2.jpg" alt="">
-         <h3>Mahlous Chakib</h3>
-         <span>Lead Instructor • Web & Mobile Development</span>
-      </div>
+            document.getElementById('totalCourses').textContent = courses.length;
 
-      <p style="margin: 1.2rem auto 0; max-width: 72rem; font-size: 1.6rem; line-height: 1.9; color: var(--muted);">
-         Focused on practical, job-ready learning. At <b style="color: var(--text);">LearniX</b>, I teach modern front-end patterns,
-         clean UI/UX, and real projects you can ship.
-      </p>
+            // Calcul du nombre total d'étudiants
+            let totalStudents = 0;
+            courses.forEach(course => {
+               totalStudents += course.etudiants_inscrits?.length || 0;
+            });
+            document.getElementById('totalStudents').textContent = totalStudents;
 
-      <div class="flex">
-         <p>Total playlists : <span>6</span></p>
-         <p>Total videos : <span>48</span></p>
-         <p>Total students : <span>1,200+</span></p>
-         <p>Avg. rating : <span>4.8/5</span></p>
-      </div>
+            // 4. Afficher les cours
+            const coursesContainer = document.getElementById('teacherCourses');
+            coursesContainer.innerHTML = '';
 
-      <a href="teachers.html" class="inline-btn">back to teachers</a>
+            if (courses.length === 0) {
+               coursesContainer.innerHTML = '<p class="empty">No courses yet</p>';
+            } else {
+               courses.forEach(course => {
+                  const box = document.createElement('div');
+                  box.className = 'box';
+                  
+                  // Image du cours
+                  const courseImg = course.image 
+                     ? (course.image.startsWith('http') ? course.image : `http://localhost:5000/${course.image}`)
+                     : 'images/thumb-1.png';
 
-   </div>
+                  box.innerHTML = `
+                     <div class="thumb">
+                        <img src="${courseImg}" alt="${course.titre}">
+                        <span>${course.specialite || 'General'}</span>
+                     </div>
+                     <h3 class="title">${course.titre}</h3>
+                     <a href="playlist.html?id=${course._id}" class="inline-btn">view course</a>
+                  `;
+                  coursesContainer.appendChild(box);
+               });
+            }
 
-</section>
-
-<!-- custom js file link  -->
-<script src="js/script.js"></script>
-
+         } catch (err) {
+            console.error(err);
+            showToast("Teacher not found or server error", "error");
+            // setTimeout(() => window.location.href = 'teachers.html', 3000); // Décommenter si tu veux rediriger
+         }
+      });
+   </script>
 </body>
+
 </html>

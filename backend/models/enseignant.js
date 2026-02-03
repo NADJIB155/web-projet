@@ -1,5 +1,3 @@
-
-
 const mongoose = require('mongoose');
 
 const enseignantSchema = new mongoose.Schema({
@@ -24,7 +22,9 @@ const enseignantSchema = new mongoose.Schema({
   role: {
     type: String,
     default: 'enseignant'
-  }
+  },
+  isVerified: { type: Boolean, default: false },
+  verificationToken: String
 }, { timestamps: true });
 
 module.exports = mongoose.model('Enseignant', enseignantSchema);

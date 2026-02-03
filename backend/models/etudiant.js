@@ -5,8 +5,8 @@ const etudiantSchema = new mongoose.Schema({
   prenom: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  
-  // These are specific to Students:
+  isVerified: { type: Boolean, default: false },
+  verificationToken: String,
   num_carte: { type: String, required: true },
   annee: { type: String, required: true } 
 }, { timestamps: true });

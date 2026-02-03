@@ -1,52 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
    <meta charset="UTF-8">
-   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>courses</title>
-
-   <!-- font awesome cdn link  -->
+   <title>Courses</title>
    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css">
-
-   <!-- custom css file link  -->
    <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
 
-<header class="header">
-   <section class="flex">
-
-      <a href="home.html" class="logo">LearniX</a>
-
-      <form action="search.html" method="post" class="search-form">
-         <input type="text" name="search_box" required placeholder="search courses..." maxlength="100">
-         <button type="submit" class="fas fa-search"></button>
-      </form>
-
-      <div class="icons">
-         <div id="menu-btn" class="fas fa-bars"></div>
-         <div id="search-btn" class="fas fa-search"></div>
-         <div id="user-btn" class="fas fa-user"></div>
-         <div id="toggle-btn" class="fas fa-sun"></div>
-      </div>
-
-      <!-- keep it (your JS toggles menus). Later we can replace with user-menu clean version -->
-      <div class="profile">
-         <img src="images/pic-1.jpg" class="image" alt="">
-         <h3 class="name">Username</h3>
-         <p class="role">Student</p>
-         <a href="profile.html" class="btn">view profile</a>
-         <div class="flex-btn">
-            <a href="login.html" class="option-btn">login</a>
-            <a href="register.html" class="option-btn">register</a>
+   <header class="header">
+      <section class="flex">
+         <a href="home.html" class="logo">LearniX</a>
+         <form action="courses.html" method="get" class="search-form">
+            <input type="text" name="search" required placeholder="search courses..." maxlength="100">
+            <button type="submit" class="fas fa-search"></button>
+         </form>
+         <div class="icons">
+            <div id="menu-btn" class="fas fa-bars"></div>
+            <div id="search-btn" class="fas fa-search"></div>
+            <div id="user-btn" class="fas fa-user"></div>
+            <div id="toggle-btn" class="fas fa-sun"></div>
          </div>
-      </div>
+         <div class="profile">
+            <img src="images/pic-1.jpg" class="image" alt="">
+            <h3 class="name">Username</h3>
+            <p class="role">Student</p>
+            <a href="profile.html" class="btn">view profile</a>
+            <div id="headerGuestBtns">
+               <div class="flex-btn">
+                  <a href="login.html" class="option-btn">login</a>
+                  <a href="register.html" class="option-btn">register</a>
+               </div>
+            </div>
+            <div id="headerUserBtns" style="display: none;">
+               <button onclick="logout()" class="delete-btn">logout</button>
+            </div>
+         </div>
+      </section>
+   </header>
 
-   </section>
-</header>
-
-<div class="side-bar">
+   <div class="side-bar">
 
    <div id="close-btn">
       <i class="fas fa-times"></i>
@@ -54,91 +49,120 @@
 
    <div class="profile">
       <img src="images/pic-1.jpg" class="image" alt="">
-      <h3 class="name">Username</h3>
+      
+      <h3 class="name">Guest</h3>
       <p class="role">Student</p>
-      <a href="profile.html" class="btn">view profile</a>
+
+      <a href="profile.html" class="btn view-profile-btn" style="display: none;">view profile</a>
+
+      <div class="flex-btn">
+         <div class="guest-options">
+            <a href="login.html" class="option-btn">login</a>
+            <a href="register.html" class="option-btn">register</a>
+         </div>
+
+         <div class="user-options" style="display: none;">
+            <button onclick="logout()" class="delete-btn">logout</button>
+         </div>
+      </div>
    </div>
 
    <nav class="navbar">
       <a href="home.html"><i class="fas fa-home"></i><span>home</span></a>
-      <a href="about.html"><i class="fas fa-question"></i><span>about</span></a>
+      <a href="dashboard.html"><i class="fas fa-chart-line"></i><span>dashboard</span></a>
       <a href="courses.html"><i class="fas fa-graduation-cap"></i><span>courses</span></a>
       <a href="teachers.html"><i class="fas fa-chalkboard-user"></i><span>teachers</span></a>
+      <a href="inbox.html"><i class="fas fa-envelope"></i><span>messages</span></a>
       <a href="contact.html"><i class="fas fa-headset"></i><span>contact us</span></a>
    </nav>
 
 </div>
 
-<section class="courses">
+   <section class="courses">
+      <h1 class="heading">our courses</h1>
+      <div class="box-container" id="coursesContainer">
+         <p style="text-align:center;">Loading courses...</p>
+      </div>
+   </section>
 
-   <h1 class="heading">our courses</h1>
+  <script src="js/script.js"></script>
+   <script>
+      document.addEventListener('DOMContentLoaded', async () => {
+         const searchQuery = getUrlParam('search');
+         const container = document.getElementById('coursesContainer');
+         
+         if (typeof showLoading === 'function') showLoading(container);
 
-  <div class="box-container" id="coursesContainer">
-      
-   </div>
-</section>
+         try {
+            const API_BASE = 'http://localhost:5000';
+            const res = await fetch(`${API_BASE}/api/cours`);
+            
+            // 🚨 CRITICAL FIX: Use 'let' instead of 'const' so we can filter it later
+            let courses = await res.json(); 
 
-<!-- custom js file link  -->
-<script src="js/script.js"></script>
+            container.innerHTML = ''; // Clear loading text
 
-<!-- Small helper style for course description (no need to edit css file) -->
-<style>
-   .courses .box-container .box .course-desc{
-      margin-top:.4rem;
-      font-size:1.55rem;
-      line-height:1.75;
-      color: var(--muted);
-   }
-</style>
-<script>
-   // Run this when the page loads
-   document.addEventListener('DOMContentLoaded', async () => {
-      const container = document.getElementById('coursesContainer');
+            if (courses.length === 0) {
+               container.innerHTML = '<p class="empty">No courses yet!</p>';
+               return;
+            }
 
-      try {
-         // 1. Get the list of courses from Backend
-         const response = await fetch('http://localhost:5000/api/cours');
-         const courses = await response.json();
+            // Filter if there is a search query
+            if (searchQuery) {
+               courses = courses.filter(c =>
+                  c.titre.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                  c.specialite.toLowerCase().includes(searchQuery.toLowerCase())
+               );
+               document.querySelector('.heading').textContent = `Search Results for "${searchQuery}"`;
+            }
 
-         // 2. Clear loading text
-         container.innerHTML = '';
+            courses.forEach(course => {
+               const teacherName = course.enseignant ? course.enseignant.nom : 'Unknown';
+               const teacherId = course.enseignant ? course.enseignant._id : '';
 
-         // 3. Loop through every course and create HTML
-         if (courses.length === 0) {
-            container.innerHTML = '<p class="empty">No courses added yet!</p>';
-            return;
-         }
+               // IMAGE LOGIC: Check if it's a full URL or a local file
+               // If your backend saves files in an 'uploads' folder, add '/uploads/'
+               let teacherImg = course.enseignant && course.enseignant.image 
+                                ? `${API_BASE}/${course.enseignant.image}` 
+                                : 'images/pic-1.jpg';
+                                
+               let courseImg = course.image 
+                               ? `${API_BASE}/${course.image}` 
+                               : 'images/thumb-1.png';
 
-         courses.forEach(course => {
-            // Build the HTML for one course
-            const courseHTML = `
-               <div class="box">
-                  <div class="tutor">
-                     <img src="images/pic-2.jpg" alt="">
-                     <div class="info">
-                        <h3>${course.enseignant ? course.enseignant.nom : 'Teacher'}</h3>
-                        <span>${new Date(course.createdAt).toLocaleDateString()}</span>
-                     </div>
-                  </div>
-                  <div class="thumb">
-                     <img src="images/thumb-1.png" alt="">
-                     <span>${course.specialite || 'General'}</span>
-                  </div>
-                  <h3 class="title">${course.titre}</h3>
-                  <p>${course.description.substring(0, 100)}...</p>
-                  <a href="playlist.html?id=${course._id}" class="inline-btn">view playlist</a>
+               const box = document.createElement('div');
+               box.className = 'box animate-scale';
+
+               box.innerHTML = `
+            <div class="tutor">
+               <img src="${teacherImg}" alt="${teacherName}" onerror="this.src='images/pic-1.jpg'">
+               <div class="info">
+                  <h3>
+                     <a href="teacher_profile.html?id=${teacherId}" style="color: inherit;">
+                        ${teacherName}
+                     </a>
+                  </h3>
+                  <span>${new Date(course.createdAt).toLocaleDateString()}</span>
                </div>
-            `;
-            // Add it to the page
-            container.innerHTML += courseHTML;
-         });
+            </div>
+            
+            <div class="thumb">
+               <img src="${courseImg}" onerror="this.src='images/thumb-1.png'" alt="${course.titre}">
+               <span>${course.specialite || 'General'}</span>
+            </div>
+            
+            <h3 class="title">${course.titre}</h3>
+            <a href="playlist.html?id=${course._id}" class="inline-btn">view playlist</a>
+         `;
 
-      } catch (error) {
-         console.error('Error fetching courses:', error);
-         container.innerHTML = '<p class="empty">Error loading courses. Is backend running?</p>';
-      }
-   });
-</script>
-
+               container.appendChild(box);
+            });
+         } catch (err) {
+            console.error(err);
+            container.innerHTML = '<p class="empty">Server Error (Is Backend on Port 5000?)</p>';
+         }
+      });
+   </script>
 </body>
+
 </html>

@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+   <meta charset="UTF-8">
+   <title>Quiz</title>
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css">
+   <link rel="stylesheet" href="css/style.css">
+   <style>
+      .quiz-box {
+         background: var(--card);
+         padding: 3rem;
+         border-radius: var(--radius);
+         max-width: 800px;
+         margin: 2rem auto;
+         border: var(--border);
+         box-shadow: var(--shadow-md);
+      }
+
+      .option {
+         padding: 1.5rem;
+         border: var(--border);
+         margin: 1rem 0;
+         cursor: pointer;
+         border-radius: var(--radius-sm);
+         font-size: 1.6rem;
+         transition: all var(--transition);
+         background: var(--card);
+      }
+
+      .option:hover {
+         background: var(--main-soft);
+         border-color: var(--main-color);
+         transform: translateX(5px);
+      }
+
+      .option.selected {
+         background: var(--main-soft);
+         border-color: var(--main-color);
+         font-weight: 700;
+      }
+
+      .quiz-progress {
+         display: flex;
+         justify-content: space-between;
+         margin-bottom: 2rem;
+         font-size: 1.5rem;
+         color: var(--muted);
+      }
+
+      #questionArea h2 {
+         font-size: 2.2rem;
+         color: var(--text);
+         margin-bottom: 2rem;
+         line-height: 1.6;
+      }
+   </style>
+</head>
+
+<body>
+
+   <header class="header">
+      <section class="flex">
+         <a href="home.html" class="logo">LearniX</a>
+         <div class="icons">
+            <div id="menu-btn" class="fas fa-bars"></div>
+            <div id="toggle-btn" class="fas fa-sun"></div>
+         </div>
+      </section>
+   </header>
+
+   <section>
+      <div class="quiz-box animate-up" id="quizApp">
+         <div id="quizProgressBar" style="height: 6px; width: 100%; background: var(--main-soft); border-radius: 999px; margin-bottom: 2rem; overflow: hidden;">
+            <div id="progressFill" style="height: 100%; width: 0%; background: var(--main-color); transition: width 0.4s ease;"></div>
+         </div>
+         <h1 class="heading" id="quizTitle">Course Quiz</h1>
+
+         <div id="questionArea">
+            <div class="quiz-progress">
+               <span id="questionNumber">Question 1 of 10</span>
+               <span id="scoreDisplay">Score: 0</span>
+            </div>
+            <h2 id="qText">Loading questions...</h2>
+            <div id="options"></div>
+            <button id="nextBtn" class="btn" style="margin-top:20px; display:none;">Next Question</button>
+         </div>
+
+         <div id="resultArea" style="display:none; text-align:center;">
+            <i class="fas fa-trophy" style="font-size:6rem; color:var(--orange); margin-bottom:2rem;"></i>
+            <h2>Quiz Complete!</h2>
+            <p style="font-size:2.4rem; margin:2rem 0; font-weight:800; color:var(--main-color);">
+               Score: <span id="finalScore">0</span>/<span id="totalQuestions">0</span>
+            </p>
+            <p style="font-size:1.8rem; margin-bottom:2rem; color:var(--muted);">
+               Percentage: <span id="percentage" style="color:var(--text); font-weight:700;">0%</span>
+            </p>
+            <div style="display:flex; gap:1rem; justify-content:center; flex-wrap:wrap;">
+               <a href="courses.html" class="inline-btn">Back to Courses</a>
+               <button onclick="location.reload()" class="inline-option-btn">Retry Quiz</button>
+            </div>
+         </div>
+      </div>
+   </section>
+
+   <script src="js/script.js"></script>
+   <script>
+      document.addEventListener('DOMContentLoaded', async () => {
+         const urlParams = new URLSearchParams(window.location.search);
+         const courseId = urlParams.get('courseId');
+         const user = getCurrentUser();
+
+         if (!courseId) {
+            showToast("No course selected", "error");
+            setTimeout(() => window.location.href = 'courses.html', 2000);
+            return;
+         }
+
+         if (!user) {
+            showToast("Please login to take the quiz", "warning");
+            setTimeout(() => window.location.href = 'login.html', 2000);
+            return;
+         }
+
+         let questions = [];
+         let currentIndex = 0;
+         let score = 0;
+         let userAnswers = [];
+         let selectedAnswer = null;
+
+         try {
+            // Fetch quiz questions from backend
+            const res = await fetch(`http://localhost:5000/api/quizzes/${courseId}`, {
+               headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+            });
+            const data = await res.json();
+
+            // The backend returns an array of quizzes for the course
+            const quiz = Array.isArray(data) ? data[0] : data;
+
+            if (!res.ok || !quiz || !quiz.questions || quiz.questions.length === 0) {
+               document.getElementById('questionArea').innerHTML = `
+            <p class="empty">No quiz available for this course yet.</p>
+            <a href="playlist.html?id=${courseId}" class="inline-btn" style="margin-top:2rem;">Back to Course</a>
+         `;
+               return;
+            }
+
+            questions = quiz.questions;
+            const quizId = quiz._id;
+            document.getElementById('quizTitle').textContent = quiz.titre || 'Course Quiz';
+
+            loadQuestion();
+
+         } catch (err) {
+            console.error(err);
+            document.getElementById('questionArea').innerHTML = `
+         <p class="empty">Error loading quiz. Please try again later.</p>
+         <a href="courses.html" class="inline-btn" style="margin-top:2rem;">Back to Courses</a>
+      `;
+         }
+
+         function loadQuestion() {
+            if (currentIndex >= questions.length) {
+               showResults();
+               return;
+            }
+
+            const qArea = document.getElementById('questionArea');
+            qArea.classList.remove('animate-fade');
+            void qArea.offsetWidth; // Trigger reflow
+            qArea.classList.add('animate-fade');
+
+            const q = questions[currentIndex];
+            selectedAnswer = null;
+
+            // Update Progress Bar
+            const progress = ((currentIndex) / questions.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+
+            // Update progress text
+            document.getElementById('questionNumber').textContent = `Question ${currentIndex + 1} of ${questions.length}`;
+            document.getElementById('scoreDisplay').textContent = `Score: ${score}`;
+
+            // Update question
+            document.getElementById('qText').textContent = q.question || q.q;
+
+            // Clear and populate options
+            const optionsContainer = document.getElementById('options');
+            optionsContainer.innerHTML = '';
+
+            const options = q.options || q.choices || [];
+            options.forEach((opt, idx) => {
+               const div = document.createElement('div');
+               div.className = 'option';
+               div.textContent = opt;
+               div.onclick = () => selectOption(idx, div);
+               optionsContainer.appendChild(div);
+            });
+
+            // Hide next button initially
+            document.getElementById('nextBtn').style.display = 'none';
+         }
+
+         function selectOption(idx, element) {
+            // Remove previous selection
+            document.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
+
+            // Mark as selected
+            element.classList.add('selected');
+            selectedAnswer = idx;
+
+            // Show next button
+            document.getElementById('nextBtn').style.display = 'block';
+         }
+
+         // Next button handler
+         document.getElementById('nextBtn').onclick = () => {
+            if (selectedAnswer === null) {
+               showToast("Please select an answer", "warning");
+               return;
+            }
+
+            const q = questions[currentIndex];
+            const correctAnswer = q.correctAnswer || q.correct;
+
+            if (selectedAnswer === correctAnswer) {
+               score++;
+               showToast("Correct! ✓", "success");
+            } else {
+               showToast("Incorrect ✗", "error");
+            }
+
+            userAnswers.push({ 
+               questionId: questions[currentIndex]._id, 
+               selectedOption: selectedAnswer 
+            });
+
+            currentIndex++;
+            setTimeout(loadQuestion, 500);
+         };
+
+         async function showResults() {
+            document.getElementById('progressFill').style.width = '100%';
+            document.getElementById('questionArea').style.display = 'none';
+            const resultArea = document.getElementById('resultArea');
+            resultArea.style.display = 'block';
+            resultArea.classList.add('animate-scale');
+
+            const percentage = Math.round((score / questions.length) * 100);
+
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('totalQuestions').textContent = questions.length;
+            document.getElementById('percentage').textContent = percentage + '%';
+
+            // Submit score to backend
+            try {
+               const token = localStorage.getItem('token');
+               await fetch('http://localhost:5000/api/quizzes/submit', {
+                  method: 'POST',
+                  headers: {
+                     'Content-Type': 'application/json',
+                     'Authorization': `Bearer ${token}`
+                  },
+                  body: JSON.stringify({
+                     quizId: quizId,
+                     answers: userAnswers
+                  })
+               });
+
+               showToast("Quiz results saved!", "success");
+            } catch (err) {
+               console.error('Error saving quiz results:', err);
+            }
+         }
+      });
+   </script>
+</body>
+
+</html>

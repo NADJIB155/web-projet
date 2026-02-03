@@ -3,25 +3,29 @@ const Cours = require('../models/cours');
 const Etudiant = require('../models/etudiant');
 const Enseignant = require('../models/enseignant');
 
-// 1. CREATE COURSE
+
+// 1. CREATE A COURSE (Teacher Only) 👨‍🏫
 exports.createCourse = async (req, res) => {
     try {
-        const { titre, description, public_cible, cle_inscription, specialite, enseignant_id } = req.body;
+        const { titre, description, public_cible, specialite, image } = req.body;
 
-        if (!enseignant_id) {
-            return res.status(400).json({ message: "enseignant_id is missing" });
+        // DEBUG: Check if the user is actually logged in
+        if (!req.user || !req.user.id) {
+            return res.status(401).json({ message: "Not authorized. Please send a valid Token." });
         }
 
+        // Create the course and link it to the Teacher
+        // We use 'req.user.id' which comes from the Token
         const newCourse = await Cours.create({
             titre,
             description,
             public_cible,
-            cle_inscription,
             specialite,
-            enseignant: enseignant_id
+            image, 
+            enseignant: req.user.id 
         });
 
-        res.status(201).json({ message: "Course created!", course: newCourse });
+        res.status(201).json(newCourse);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -30,7 +34,12 @@ exports.createCourse = async (req, res) => {
 // 2. GET ALL COURSES
 exports.getAllCourses = async (req, res) => {
     try {
-        const courses = await Cours.find().populate('enseignant', 'nom prenom email');
+        const { enseignant } = req.query;
+        let query = {};
+        if (enseignant) {
+            query.enseignant = enseignant;
+        }
+        const courses = await Cours.find(query).populate('enseignant', 'nom prenom email image');
         res.json(courses);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -87,6 +96,24 @@ exports.updateCourse = async (req, res) => {
     }
 };
 
+// 6. GET SINGLE COURSE (New) 🔍
+exports.getCourseById = async (req, res) => {
+    try {
+        const course = await Cours.findById(req.params.id).populate('enseignant', 'nom prenom');
+        
+        if (!course) {
+            return res.status(404).json({ message: "Course not found" });
+        }
+
+        res.json(course);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+
+
+
 // 5. DELETE COURSE 
 exports.deleteCourse = async (req, res) => {
     try {
@@ -97,6 +124,59 @@ exports.deleteCourse = async (req, res) => {
         }
 
         res.json({ message: "Course deleted successfully" });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// 7. GET ENROLLED COURSES (For Students)
+exports.getEnrolledCourses = async (req, res) => {
+    try {
+        // TEACHER: We search for courses where the 'etudiants_inscrits' array contains the Student's ID.
+        // req.user.id comes from the auth middleware (token).
+        const courses = await Cours.find({ etudiants_inscrits: req.user.id })
+                                   .populate('enseignant', 'nom prenom');
+        
+        res.json(courses);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// 8. GET TEACHER'S COURSES (For Teacher Dashboard)
+exports.getMyCourses = async (req, res) => {
+    try {
+        // TEACHER: We filter courses where the 'enseignant' field matches the logged-in Teacher's ID.
+        const courses = await Cours.find({ enseignant: req.user.id });
+        res.json(courses);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+// Add Video to Course
+exports.addVideo = async (req, res) => {
+    try {
+        const courseId = req.params.id;
+        // The file path comes from Multer
+        const videoPath = req.file ? req.file.filename : null; 
+        const { title } = req.body;
+
+        if(!videoPath) return res.status(400).json({message: "No video uploaded"});
+
+        const course = await Cours.findById(courseId);
+        if(!course) return res.status(404).json({message: "Course not found"});
+
+        // Add to content array
+        course.contenu.push({
+            titre: title || req.file.originalname,
+            url: `uploads/${videoPath}`, // Save the path
+            duree: 10, // Default duration or calculate it
+            type: "video"
+        });
+
+        await course.save();
+        res.status(200).json({ message: "Video added!", course });
+
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

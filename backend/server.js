@@ -1,29 +1,48 @@
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const connectDB = require("./config/db");
+const chatRoutes = require('./routes/chatRoutes'); // Import déplacé ici par propreté
 
 const app = express();
 
-// Middlewares
-app.use(cors());
-app.use(express.json()); // This fixes the "undefined" error!
+// ==========================================
+// 1. MIDDLEWARES (CORS SPÉCIAL TUNNEL)
+// ==========================================
+app.use(cors({
+    origin: '*', // <--- AUTORISE TOUT LE MONDE (Mobile, Tunnel, PC)
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
-// Connection DB
+app.use(express.json()); 
+
+// ==========================================
+// 2. CONNEXION DB
+// ==========================================
 connectDB();
 
-// Test route
+// ==========================================
+// 3. DOSSIER UPLOADS PUBLIC
+// ==========================================
+// Permet d'afficher les images de profil sur le téléphone
+app.use('/uploads', express.static('uploads'));
+
+// ==========================================
+// 4. ROUTES
+// ==========================================
 app.get("/", (req, res) => {
   res.send("API E-learning ready!");
 });
 
-// --- Routes ---
 app.use("/enseignant", require("./routes/enseignantRoutes"));
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/cours", require("./routes/coursRoutes"));
-
-// This one line handles ALL quiz logic (POST, GET, etc.)
-// The URL will be: http://localhost:5000/api/quiz
 app.use("/api/quizzes", require("./routes/quizRoutes"));
+app.use('/api/messages', chatRoutes); 
 
-// Start the server
-app.listen(5000, () => console.log("Server running on port 5000"));
+// ==========================================
+// 5. DÉMARRAGE SERVEUR
+// ==========================================
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

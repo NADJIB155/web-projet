@@ -4,195 +4,223 @@
    <meta charset="UTF-8">
    <meta http-equiv="X-UA-Compatible" content="IE=edge">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>video playlist</title>
+   <title>Course Playlist</title>
 
-   <!-- font awesome cdn link  -->
    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css">
-
-   <!-- custom css file link  -->
    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
 <header class="header">
    <section class="flex">
-
       <a href="home.html" class="logo">LearniX</a>
-
       <form action="search.html" method="post" class="search-form">
          <input type="text" name="search_box" required placeholder="search courses..." maxlength="100">
          <button type="submit" class="fas fa-search"></button>
       </form>
-
       <div class="icons">
          <div id="menu-btn" class="fas fa-bars"></div>
          <div id="search-btn" class="fas fa-search"></div>
          <div id="user-btn" class="fas fa-user"></div>
          <div id="toggle-btn" class="fas fa-sun"></div>
       </div>
-
-      <!-- keep it for now (your script.js handles it) -->
       <div class="profile">
          <img src="images/pic-1.jpg" class="image" alt="">
-         <h3 class="name">Username</h3>
+         <h3 class="name">Guest</h3>
          <p class="role">Student</p>
-         <a href="profile.html" class="btn">view profile</a>
          <div class="flex-btn">
+            <div class="guest-options">
+               <a href="login.html" class="option-btn">login</a>
+               <a href="register.html" class="option-btn">register</a>
+            </div>
+         </div>
+      </div>
+   </section>
+</header>   
+
+<div class="side-bar">
+   <div id="close-btn"><i class="fas fa-times"></i></div>
+   <div class="profile">
+      <img src="images/pic-1.jpg" class="image" alt="">
+      <h3 class="name">Guest</h3>
+      <p class="role">Student</p>
+      <div class="flex-btn">
+         <div class="guest-options">
             <a href="login.html" class="option-btn">login</a>
             <a href="register.html" class="option-btn">register</a>
          </div>
       </div>
-
-   </section>
-</header>
-
-<div class="side-bar">
-
-   <div id="close-btn">
-      <i class="fas fa-times"></i>
    </div>
-
-   <div class="profile">
-      <img src="images/pic-1.jpg" class="image" alt="">
-      <h3 class="name">Username</h3>
-      <p class="role">Student</p>
-      <a href="profile.html" class="btn">view profile</a>
-   </div>
-
    <nav class="navbar">
       <a href="home.html"><i class="fas fa-home"></i><span>home</span></a>
-      <a href="about.html"><i class="fas fa-question"></i><span>about</span></a>
+      <a href="dashboard.html"><i class="fas fa-chart-line"></i><span>dashboard</span></a>
       <a href="courses.html"><i class="fas fa-graduation-cap"></i><span>courses</span></a>
       <a href="teachers.html"><i class="fas fa-chalkboard-user"></i><span>teachers</span></a>
+      <a href="inbox.html"><i class="fas fa-envelope"></i><span>messages</span></a>
       <a href="contact.html"><i class="fas fa-headset"></i><span>contact us</span></a>
    </nav>
-
 </div>
 
 <section class="playlist-details">
-
-   <h1 class="heading">playlist details</h1>
-
+   <h1 class="heading">course details</h1>
    <div class="row">
-
       <div class="column">
-         <form action="" method="post" class="save-playlist">
-            <button type="submit"><i class="far fa-bookmark"></i> <span>save playlist</span></button>
-         </form>
-
          <div class="thumb">
-            <img src="images/thumb-1.png" alt="">
-            <span>12 videos</span>
+            <img id="courseImage" src="images/thumb-1.png" alt="">
+            <span id="courseSpeciality">Topic</span>
          </div>
       </div>
-
       <div class="column">
-         <div class="tutor">
-            <img src="images/pic-2.jpg" alt="">
-            <div>
-               <h3>Mahlous Chakib</h3>
-               <span>Updated weekly</span>
-            </div>
-         </div>
-
          <div class="details">
-            <h3>HTML Foundations (LearniX)</h3>
-
-            <p class="playlist-desc">
-               Learn how to build clean and accessible web pages from scratch. This playlist covers semantic HTML,
-               forms, best practices, and real mini-projects to help you level up fast.
-            </p>
-
-            <div class="mini-list">
-               <p><i class="fas fa-check-circle"></i> Structure pages with semantic tags</p>
-               <p><i class="fas fa-check-circle"></i> Build forms (login / contact) correctly</p>
-               <p><i class="fas fa-check-circle"></i> Improve accessibility + SEO basics</p>
+            <h3 id="courseTitle">Loading...</h3>
+            <p id="courseDescription">Please wait...</p>
+            
+            <div id="enrollmentSection" style="margin-top: 2rem;">
+               <button class="btn" disabled>Loading status...</button>
             </div>
-
-            <a href="teacher_profile.html" class="inline-btn">view profile</a>
          </div>
       </div>
-
    </div>
-
 </section>
 
 <section class="playlist-videos">
-
    <h1 class="heading">playlist videos</h1>
-
-   <div class="box-container">
-
-      <a class="box" href="watch-video.html">
-         <i class="fas fa-play"></i>
-         <img src="images/post-1-1.png" alt="">
-         <h3>HTML Foundations — Setup & Structure (Part 01)</h3>
-      </a>
-
-      <a class="box" href="watch-video.html">
-         <i class="fas fa-play"></i>
-         <img src="images/post-1-2.png" alt="">
-         <h3>Semantic Tags That Pros Use (Part 02)</h3>
-      </a>
-
-      <a class="box" href="watch-video.html">
-         <i class="fas fa-play"></i>
-         <img src="images/post-1-3.png" alt="">
-         <h3>Links, Images & Best Practices (Part 03)</h3>
-      </a>
-
-      <a class="box" href="watch-video.html">
-         <i class="fas fa-play"></i>
-         <img src="images/post-1-4.png" alt="">
-         <h3>Forms Done Right (Validation + UX) (Part 04)</h3>
-      </a>
-
-      <a class="box" href="watch-video.html">
-         <i class="fas fa-play"></i>
-         <img src="images/post-1-5.png" alt="">
-         <h3>Tables, Lists & Real Layout Patterns (Part 05)</h3>
-      </a>
-
-      <a class="box" href="watch-video.html">
-         <i class="fas fa-play"></i>
-         <img src="images/post-1-6.png" alt="">
-         <h3>Mini Project: Landing Page in Pure HTML (Part 06)</h3>
-      </a>
-
-   </div>
-
+   <div class="box-container" id="videosContainer">
+      </div>
 </section>
 
-<!-- custom js file link  -->
 <script src="js/script.js"></script>
 
-<!-- small UI helper (doesn't break your main CSS) -->
-<style>
-   .playlist-details .details .playlist-desc{
-      margin-top: .8rem;
-      font-size: 1.6rem;
-      line-height: 1.9;
-      color: var(--muted);
+<script>
+   const API_BASE = 'http://localhost:5000';
+
+   // Helper: Random Image if none exists
+   function getRandomThumb() {
+      const num = Math.floor(Math.random() * 9) + 1; 
+      return `images/thumb-${num}.png`;
    }
-   .playlist-details .details .mini-list{
-      margin-top: 1.2rem;
-      border-top: var(--border);
-      padding-top: 1.2rem;
-      display: grid;
-      gap: .6rem;
+
+   document.addEventListener('DOMContentLoaded', async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const courseId = urlParams.get('id');
+      const user = getCurrentUser(); // from script.js
+      const token = localStorage.getItem('token');
+
+      if (!courseId) {
+         window.location.href = 'courses.html';
+         return;
+      }
+
+      try {
+         // 1. Fetch Course Details
+         const res = await fetch(`${API_BASE}/api/cours/${courseId}`);
+         const course = await res.json();
+
+         // 2. Update UI Info
+         document.getElementById('courseTitle').textContent = course.titre;
+         document.getElementById('courseDescription').textContent = course.description;
+         document.getElementById('courseSpeciality').textContent = course.specialite || 'General';
+         
+         // 3. Handle Image (Random fallback)
+         const imgElement = document.getElementById('courseImage');
+         if (course.image && course.image.startsWith('http')) {
+            imgElement.src = course.image;
+         } else if (course.image) {
+            imgElement.src = `${API_BASE}/${course.image}`;
+         } else {
+            imgElement.src = getRandomThumb();
+         }
+         // If image link breaks, force random
+         imgElement.onerror = () => imgElement.src = getRandomThumb();
+
+
+         // 4. Handle Enrollment Button
+         const enrollDiv = document.getElementById('enrollmentSection');
+         
+         if (!user) {
+            enrollDiv.innerHTML = `<a href="login.html" class="option-btn">Login to Enroll</a>`;
+         } else if (user.role === 'enseignant') {
+            enrollDiv.innerHTML = `<a href="#" class="btn" style="background:orange">Teacher View</a>`;
+         } else {
+            // Check if student ID is in the list
+            const isEnrolled = course.etudiants_inscrits && course.etudiants_inscrits.includes(user._id);
+
+            if (isEnrolled) {
+               enrollDiv.innerHTML = `
+                  <h3 style="color:var(--main-color); margin-bottom:1rem;"><i class="fas fa-check-circle"></i> Enrolled</h3>
+                  <a href="quiz.html?courseId=${course._id}" class="inline-btn">Start Quiz</a>
+               `;
+               // Load Videos ONLY if enrolled (Optional security, but good UX)
+               loadVideos(course);
+            } else {
+               enrollDiv.innerHTML = `<button id="enrollBtn" class="btn">Enroll Now</button>`;
+               document.getElementById('enrollBtn').addEventListener('click', () => enroll(courseId));
+               // Show locked videos preview
+               loadVideos(course, true); 
+            }
+         }
+
+      } catch (err) {
+         console.error(err);
+         document.getElementById('courseTitle').textContent = "Error loading course";
+      }
+   });
+
+   // 5. Load Videos Function
+   function loadVideos(course, isLocked = false) {
+      const container = document.getElementById('videosContainer');
+      container.innerHTML = '';
+
+      // Backend uses 'contenu', but check 'videos' just in case
+      const videos = course.contenu || course.videos || [];
+
+      if (videos.length === 0) {
+         container.innerHTML = '<p class="empty">No videos uploaded yet!</p>';
+         return;
+      }
+
+      videos.forEach((video, index) => {
+         const box = document.createElement('a');
+         box.className = 'box';
+         
+         // If locked (not enrolled), clicking does nothing or shows alert
+         if(isLocked) {
+             box.href = "javascript:alert('Please enroll to watch this video!')";
+             box.style.opacity = "0.7";
+         } else {
+             box.href = `watch-video.html?id=${course._id}&vid=${index}`;
+         }
+
+         box.innerHTML = `
+            <i class="fas ${isLocked ? 'fa-lock' : 'fa-play'}"></i>
+            <img src="images/post-1-1.png" alt="">
+            <h3>${index + 1}. ${video.titre || 'Untitled Video'}</h3>
+         `;
+         container.appendChild(box);
+      });
    }
-   .playlist-details .details .mini-list p{
-      font-size: 1.55rem;
-      color: var(--muted);
-      display: flex;
-      align-items: center;
-      gap: .8rem;
+
+   // 6. Enroll Function
+   async function enroll(courseId) {
+      const token = localStorage.getItem('token');
+      try {
+         const res = await fetch(`${API_BASE}/api/cours/${courseId}/enroll`, {
+            method: 'POST',
+            headers: { 
+               'Content-Type': 'application/json',
+               'Authorization': `Bearer ${token}`
+            }
+         });
+         const data = await res.json();
+         if(res.ok) {
+            alert("🎉 Enrollment Successful!");
+            location.reload();
+         } else {
+            alert("Error: " + data.message);
+         }
+      } catch(e) { console.error(e); alert("Connection Error"); }
    }
-   .playlist-details .details .mini-list i{
-      color: var(--main-color);
-      font-size: 1.6rem;
-   }
-</style>
+</script>
 
 </body>
 </html>

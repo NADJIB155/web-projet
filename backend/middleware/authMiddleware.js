@@ -1,52 +1,51 @@
 const jwt = require('jsonwebtoken');
+const Etudiant = require('../models/etudiant');
+const Enseignant = require('../models/enseignant');
 
-// 1. PROTECT FUNCTION (The Security Guard)
-const protect = (req, res, next) => {
+const protect = async (req, res, next) => {
     let token;
 
-    // Check if the "Authorization" header exists and starts with "Bearer"
-    // Standard format: "Authorization: Bearer <your_long_token_here>"
-    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+    if (
+        req.headers.authorization &&
+        req.headers.authorization.startsWith('Bearer')
+    ) {
         try {
-            // STEP A: Get the token string
-            // We split "Bearer eyJhbG..." by space, and take the second part (the token code)
+            // 1. Récupérer le token
             token = req.headers.authorization.split(' ')[1];
 
-            // STEP B: Verify the token
-            // jwt.verify checks if the token is real and not expired.
-            // It needs the SAME secret key you used in authController.js
-            const decoded = jwt.verify(token, 'your_super_secret_key_123');
+            // 2. Décoder le token
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-            // STEP C: Add the user info to the request
-            // We attach the decoded data (id & role) to "req.user"
-            // Now, every controller after this can use "req.user.id"!
-            req.user = decoded;
+            // 3. Chercher l'utilisateur dans la BONNE table
+            // Le token contient l'ID et le ROLE (on l'a mis lors du login)
+            let user;
+            if (decoded.role === 'enseignant') {
+                user = await Enseignant.findById(decoded.id).select('-password');
+            } else {
+                user = await Etudiant.findById(decoded.id).select('-password');
+            }
 
-            // STEP D: Open the gate
-            // next() tells Express: "This user is good. Move to the next function (the controller)."
+            if (!user) {
+                return res.status(401).json({ message: "Utilisateur introuvable avec ce token" });
+            }
+
+            req.user = user; // On attache l'utilisateur à la requête
             next();
-
         } catch (error) {
             console.error(error);
-            // 401 means "Unauthorized"
-        return res.status(401).json({ message: 'Not authorized, token failed' });
+            res.status(401).json({ message: "Non autorisé, token invalide" });
         }
-    }
-
-    // If no token was found at all
-    if (!token) {
-      return res.status(401).json({ message: 'Not authorized, no token' });
+    } else {
+        res.status(401).json({ message: "Non autorisé, aucun token" });
     }
 };
 
-// 2. AUTHORIZE FUNCTION (The VIP List)
-// This checks if the user has the correct Role (e.g., only 'enseignant' can create quizzes)
+// Middleware pour restreindre l'accès à certains rôles (ex: Prof seulement)
 const authorize = (...roles) => {
     return (req, res, next) => {
-        // req.user was created in the 'protect' function above!
-        if (!roles.includes(req.user.role)) {
+        if (!req.user || !roles.includes(req.user.role)) {
             return res.status(403).json({ 
-                message: `User role ${req.user.role} is not authorized to access this route` 
+                message: `Le rôle ${req.user ? req.user.role : 'inconnu'} n'est pas autorisé à accéder à cette route` 
             });
         }
         next();
