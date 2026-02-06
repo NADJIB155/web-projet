@@ -129,7 +129,7 @@ window.onscroll = () => {
 // ============================
 // 7. AUTHENTICATION & USER STATE
 // ============================
-const API_URL = 'https://wv7pc13r-5000.euw.devtunnels.ms/api';
+const API_URL = 'https://localhost/api';
 
 // Check login status on page load
 document.addEventListener('DOMContentLoaded', () => {

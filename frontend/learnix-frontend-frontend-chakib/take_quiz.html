@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Passer le Quiz - LearniX</title>
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css">
+   <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="header">
+   <section class="flex">
+      <a href="home.html" class="logo">LearniX</a>
+      <div class="icons">
+         <a href="home.html"><div class="fas fa-home"></div></a>
+         <div id="user-btn" class="fas fa-user"></div>
+      </div>
+   </section>
+</header>
+
+<section class="form-container">
+   <form id="quizForm" style="max-width: 800px; width:100%">
+      <h3 id="quizTitle" class="heading">Chargement du Quiz...</h3>
+      
+      <div id="questionsList"></div>
+
+      <input type="submit" value="Valider mes réponses" class="btn" name="submit">
+      
+      <div id="resultBox" style="display:none; text-align:center; margin-top:2rem;">
+         <p id="scoreText" style="font-size: 2.5rem; color: var(--black); font-weight:bold;"></p>
+         <p id="messageText" style="font-size: 1.6rem; margin:1rem 0;"></p>
+         <a href="courses.html" class="inline-btn">Retour aux cours</a>
+      </div>
+   </form>
+</section>
+
+<script src="js/script.js"></script>
+<script>
+   const API_BASE = 'http://localhost:5000'; 
+   const urlParams = new URLSearchParams(window.location.search);
+   const quizId = urlParams.get('id');
+   let currentQuiz = null;
+
+   // 1. Charger le Quiz
+   async function loadQuiz() {
+       try {
+           if(!quizId) throw new Error("ID manquant");
+           
+           // Appel à la route que nous avons ajoutée (detail/:id)
+           const response = await fetch(`${API_BASE}/api/quizzes/detail/${quizId}`);
+           if(!response.ok) throw new Error("Erreur chargement");
+           
+           currentQuiz = await response.json();
+           document.getElementById('quizTitle').textContent = currentQuiz.titre;
+
+           const container = document.getElementById('questionsList');
+           
+           currentQuiz.questions.forEach((q, index) => {
+               const qDiv = document.createElement('div');
+               qDiv.className = 'box'; // Utilise le style des cartes
+               qDiv.style.textAlign = 'left';
+               qDiv.style.marginBottom = '1.5rem';
+
+               let optionsHTML = '';
+               q.options.forEach((opt, optIndex) => {
+                   optionsHTML += `
+                       <div class="flex" style="gap:1rem; margin-top:1rem; align-items:center;">
+                           <input type="radio" name="q_${index}" value="${optIndex}" id="q${index}_o${optIndex}" style="width:20px; height:20px; cursor:pointer;">
+                           <label for="q${index}_o${optIndex}" style="font-size:1.6rem; cursor:pointer; width:100%">${opt}</label>
+                       </div>
+                   `;
+               });
+
+               qDiv.innerHTML = `
+                   <p style="font-size: 1.8rem; font-weight:bold; color: var(--black);">
+                       ${index + 1}. ${q.questionText}
+                   </p>
+                   ${optionsHTML}
+               `;
+               container.appendChild(qDiv);
+           });
+
+       } catch(e) {
+           console.error(e);
+           document.getElementById('quizTitle').textContent = "Impossible de charger le quiz.";
+       }
+   }
+
+   // 2. Calculer le Score
+   document.getElementById('quizForm').onsubmit = (e) => {
+       e.preventDefault();
+       if(!currentQuiz) return;
+
+       let score = 0;
+       let total = currentQuiz.questions.length;
+
+       currentQuiz.questions.forEach((q, index) => {
+           const selected = document.querySelector(`input[name="q_${index}"]:checked`);
+           if(selected && parseInt(selected.value) === q.correctAnswer) {
+               score++;
+           }
+       });
+
+       // Affichage du résultat
+       const percentage = Math.round((score / total) * 100);
+       const resultBox = document.getElementById('resultBox');
+       const scoreText = document.getElementById('scoreText');
+       const msgText = document.getElementById('messageText');
+
+       scoreText.textContent = `Note : ${score} / ${total}`;
+       
+       if(percentage >= 50) {
+           scoreText.style.color = 'green';
+           msgText.textContent = "Bravo ! Vous avez réussi ce module. 🎉";
+       } else {
+           scoreText.style.color = 'red';
+           msgText.textContent = "Dommage, révisez le cours et réessayez ! 💪";
+       }
+
+       // Masquer le bouton valider et montrer le résultat
+       document.querySelector('input[type="submit"]').style.display = 'none';
+       resultBox.style.display = 'block';
+   };
+
+   loadQuiz();
+</script>
+</body>
+</html>

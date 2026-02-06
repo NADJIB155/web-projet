@@ -19,5 +19,14 @@ router.get('/:courseId', protect, quizController.getQuizzesByCourse);
 
 // DELETE /api/quizzes/:id (Only Teachers can delete)
 router.delete('/:id', protect, authorize('enseignant'), quizController.deleteQuiz);
+// Dans backend/routes/quizRoutes.js
+router.get('/detail/:id', async (req, res) => {
+    try {
+        const quiz = await require('../models/quiz').findById(req.params.id);
+        res.json(quiz);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
 
 module.exports = router;

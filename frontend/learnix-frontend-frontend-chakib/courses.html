@@ -72,7 +72,7 @@
       <a href="dashboard.html"><i class="fas fa-chart-line"></i><span>dashboard</span></a>
       <a href="courses.html"><i class="fas fa-graduation-cap"></i><span>courses</span></a>
       <a href="teachers.html"><i class="fas fa-chalkboard-user"></i><span>teachers</span></a>
-      <a href="inbox.html"><i class="fas fa-envelope"></i><span>messages</span></a>
+      <a href="forum.html"><i class="fas fa-comments"></i><span>forum</span></a>
       <a href="contact.html"><i class="fas fa-headset"></i><span>contact us</span></a>
    </nav>
 
@@ -86,83 +86,70 @@
    </section>
 
   <script src="js/script.js"></script>
-   <script>
-      document.addEventListener('DOMContentLoaded', async () => {
-         const searchQuery = getUrlParam('search');
-         const container = document.getElementById('coursesContainer');
-         
-         if (typeof showLoading === 'function') showLoading(container);
+  <script>
+   const API_BASE = 'http://localhost:5000'; 
 
-         try {
-            const API_BASE = 'http://localhost:5000';
-            const res = await fetch(`${API_BASE}/api/cours`);
-            
-            // 🚨 CRITICAL FIX: Use 'let' instead of 'const' so we can filter it later
-            let courses = await res.json(); 
+   document.addEventListener('DOMContentLoaded', async () => {
+      // 1. Récupérer le mot-clé de recherche dans l'URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const searchQuery = urlParams.get('search'); // ex: "java"
 
-            container.innerHTML = ''; // Clear loading text
+      // Mettre le mot-clé dans la barre de recherche pour que l'utilisateur le voie
+      if(searchQuery) {
+         document.querySelector('[name="search"]').value = searchQuery;
+      }
 
-            if (courses.length === 0) {
-               container.innerHTML = '<p class="empty">No courses yet!</p>';
-               return;
-            }
+      const grid = document.querySelector('.courses .box-container');
+      
+      try {
+         const res = await fetch(`${API_BASE}/api/cours`);
+         let courses = await res.json();
 
-            // Filter if there is a search query
-            if (searchQuery) {
-               courses = courses.filter(c =>
-                  c.titre.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                  c.specialite.toLowerCase().includes(searchQuery.toLowerCase())
-               );
-               document.querySelector('.heading').textContent = `Search Results for "${searchQuery}"`;
-            }
-
-            courses.forEach(course => {
-               const teacherName = course.enseignant ? course.enseignant.nom : 'Unknown';
-               const teacherId = course.enseignant ? course.enseignant._id : '';
-
-               // IMAGE LOGIC: Check if it's a full URL or a local file
-               // If your backend saves files in an 'uploads' folder, add '/uploads/'
-               let teacherImg = course.enseignant && course.enseignant.image 
-                                ? `${API_BASE}/${course.enseignant.image}` 
-                                : 'images/pic-1.jpg';
-                                
-               let courseImg = course.image 
-                               ? `${API_BASE}/${course.image}` 
-                               : 'images/thumb-1.png';
-
-               const box = document.createElement('div');
-               box.className = 'box animate-scale';
-
-               box.innerHTML = `
-            <div class="tutor">
-               <img src="${teacherImg}" alt="${teacherName}" onerror="this.src='images/pic-1.jpg'">
-               <div class="info">
-                  <h3>
-                     <a href="teacher_profile.html?id=${teacherId}" style="color: inherit;">
-                        ${teacherName}
-                     </a>
-                  </h3>
-                  <span>${new Date(course.createdAt).toLocaleDateString()}</span>
-               </div>
-            </div>
-            
-            <div class="thumb">
-               <img src="${courseImg}" onerror="this.src='images/thumb-1.png'" alt="${course.titre}">
-               <span>${course.specialite || 'General'}</span>
-            </div>
-            
-            <h3 class="title">${course.titre}</h3>
-            <a href="playlist.html?id=${course._id}" class="inline-btn">view playlist</a>
-         `;
-
-               container.appendChild(box);
-            });
-         } catch (err) {
-            console.error(err);
-            container.innerHTML = '<p class="empty">Server Error (Is Backend on Port 5000?)</p>';
+         // 2. FILTRAGE : Si on a une recherche, on filtre la liste
+         if (searchQuery) {
+            const term = searchQuery.toLowerCase();
+            courses = courses.filter(c => 
+               c.titre.toLowerCase().includes(term) || 
+               c.specialite.toLowerCase().includes(term)
+            );
+            document.querySelector('.heading').textContent = `Search results for "${searchQuery}"`;
          }
-      });
-   </script>
+
+         // 3. Affichage
+         if (courses.length === 0) {
+            grid.innerHTML = '<p class="empty">No courses found!</p>';
+            return;
+         }
+
+         grid.innerHTML = courses.map(course => {
+             // Gestion image (évite les liens cassés)
+             const imgUrl = course.image ? (course.image.startsWith('http') ? course.image : `${API_BASE}/${course.image}`) : 'images/thumb-1.png';
+             
+             return `
+               <div class="box">
+                  <div class="tutor">
+                     <img src="${course.enseignant && course.enseignant.image ? `${API_BASE}/${course.enseignant.image}` : 'images/pic-2.jpg'}" alt="">
+                     <div class="info">
+                        <h3>${course.enseignant ? course.enseignant.nom : 'Teacher'}</h3>
+                        <span>${new Date(course.createdAt || Date.now()).toLocaleDateString()}</span>
+                     </div>
+                  </div>
+                  <div class="thumb">
+                     <img src="${imgUrl}" alt="">
+                     <span>${course.specialite || 'General'}</span>
+                  </div>
+                  <h3 class="title">${course.titre}</h3>
+                  <a href="playlist.html?id=${course._id}" class="inline-btn">View Playlist</a>
+               </div>
+            `;
+         }).join('');
+
+      } catch (err) {
+         console.error(err);
+         grid.innerHTML = '<p class="empty">Error loading courses.</p>';
+      }
+   });
+</script>
 </body>
 
 </html>

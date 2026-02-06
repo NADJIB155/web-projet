@@ -2,100 +2,87 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const path = require('path');
-const Cours = require('../models/Cours'); 
-const { protect } = require('../middleware/authMiddleware'); 
+const { protect } = require('../middleware/authMiddleware');
 
-// --- CONFIGURATION MULTER POUR LES VIDÉOS ---
+// ✅ IMPORT DU CONTROLLER (Vérifie que le chemin est bon)
+const coursController = require('../Controller/coursController');
+
+// ==========================================
+// CONFIGURATION MULTER (Images & Vidéos)
+// ==========================================
+
+// Configuration du stockage
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, 'uploads/videos/'); // Dossier où seront stockées les vidéos
+        // On sépare les dossiers selon le type de fichier
+        if (file.fieldname === 'video') {
+            cb(null, 'uploads/videos/');
+        } else {
+            // Pour l'image du cours (fieldname === 'image')
+            cb(null, 'uploads/'); 
+        }
     },
     filename: (req, file, cb) => {
         cb(null, Date.now() + path.extname(file.originalname));
     }
 });
 
+// Filtre pour accepter images et vidéos
+const fileFilter = (req, file, cb) => {
+    if (file.fieldname === "image") {
+        // Accepter seulement les images
+        if (!file.mimetype.startsWith('image/')) {
+            return cb(new Error('Seules les images sont autorisées pour la miniature !'), false);
+        }
+    }
+    // (Tu peux ajouter un filtre vidéo ici si tu veux)
+    cb(null, true);
+};
+
 const upload = multer({ 
     storage: storage,
-    limits: { fileSize: 100 * 1024 * 1024 } // Limite à 100MB par vidéo
+    fileFilter: fileFilter,
+    limits: { fileSize: 500 * 1024 * 1024 } // Limite 500MB (pour les grosses vidéos)
 });
 
 // ==========================================
 // ROUTES
 // ==========================================
 
-// 1. Récupérer tous les cours (pour la page home/courses)
+// 1. CRÉER UN COURS (Avec upload d'image) 🆕
+// C'est la route qui te manquait pour le "Publish Course"
+router.post('/', 
+    protect, 
+    upload.single('image'), // 'image' doit correspondre au name dans ton FormData frontend
+    coursController.createCourse
+);
 
+// 2. RÉCUPÉRER TOUS LES COURS
+router.get('/', coursController.getAllCourses);
 
-router.get('/', async (req, res) => {
-    try {
-        //  On prépare un filtre vide
-        let filter = {};
-        
-        // Si l'URL contient ?enseignant=ID, on filtre par cet ID
-        if (req.query.enseignant) {
-            filter = { enseignant: req.query.enseignant };
-        }
+// 3. RÉCUPÉRER LES COURS DU PROF CONNECTÉ (Dashboard)
+router.get('/my-courses', protect, coursController.getMyCourses);
 
-        // On applique le filtre au .find()
-        const cours = await Cours.find(filter).populate('enseignant', 'nom prenom image');
-        res.json(cours);
-    } catch (err) {
-        res.status(500).json({ message: err.message });
-    }
-});
+// 4. RÉCUPÉRER LES COURS INSCRITS (Pour l'étudiant)
+router.get('/enrolled', protect, coursController.getEnrolledCourses);
 
-// 2. Récupérer les détails d'un cours spécifique (utilisé par playlist.html)
-router.get('/:id', async (req, res) => {
-    try {
-        const cours = await Cours.findById(req.params.id).populate('enseignant', 'nom prenom');
-        if (!cours) return res.status(404).json({ message: "Cours non trouvé" });
-        res.json(cours);
-    } catch (err) {
-        res.status(500).json({ message: "ID invalide" });
-    }
-});
+// 5. DÉTAILS D'UN COURS UNIQUE
+router.get('/:id', coursController.getCourseById);
 
-// 3. S'inscrire à un cours (Enroll Now)
-router.post('/:id/enroll', protect, async (req, res) => {
-    try {
-        const cours = await Cours.findById(req.params.id);
-        if (!cours) return res.status(404).json({ message: "Cours non trouvé" });
+// 6. METTRE À JOUR UN COURS
+router.put('/:id', protect, coursController.updateCourse);
 
-        // Vérifier si l'étudiant est déjà inscrit
-        if (cours.etudiants_inscrits.includes(req.user.id)) {
-            return res.status(400).json({ message: "Déjà inscrit à ce cours" });
-        }
+// 7. SUPPRIMER UN COURS
+router.delete('/:id', protect, coursController.deleteCourse);
 
-        cours.etudiants_inscrits.push(req.user.id);
-        await cours.save();
-        res.json({ message: "Inscription réussie" });
-    } catch (err) {
-        res.status(500).json({ message: err.message });
-    }
-});
+// 8. S'INSCRIRE À UN COURS
+router.post('/:id/enroll', protect, coursController.enrollStudent);
 
-// 4. Ajouter une vidéo à la playlist (Réservé aux enseignants)
-router.post('/:id/add-video', protect, upload.single('video'), async (req, res) => {
-    try {
-        if (req.user.role !== 'enseignant') {
-            return res.status(403).json({ message: "Accès refusé" });
-        }
-
-        const cours = await Cours.findById(req.params.id);
-        if (!req.file) return res.status(400).json({ message: "Veuillez uploader une vidéo" });
-
-        const nouvelleVideo = {
-            titre: req.body.titre || "Sans titre",
-            videoUrl: req.file.path.replace(/\\/g, "/") // Normalise le chemin pour le web
-        };
-
-        cours.contenu.push(nouvelleVideo);
-        await cours.save();
-        res.status(201).json({ message: "Vidéo ajoutée", cours });
-    } catch (err) {
-        res.status(500).json({ message: err.message });
-    }
-});
+// 9. AJOUTER UNE VIDÉO (Avec upload vidéo)
+router.post('/:id/videos', 
+    protect, 
+    upload.single('video'), // 'video' doit correspondre au name dans le frontend
+    coursController.addVideo
+);
 
 module.exports = router;

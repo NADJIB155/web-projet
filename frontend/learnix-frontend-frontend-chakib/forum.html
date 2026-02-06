@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Forum LearniX</title>
+
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css">
+
+   <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="header">
+   <section class="flex">
+      <a href="home.html" class="logo">LearniX</a>
+
+      <form action="courses.html" method="get" class="search-form">
+         <input type="text" name="search" required placeholder="search courses..." maxlength="100">
+         <button type="submit" class="fas fa-search"></button>
+      </form>
+
+      <div class="icons">
+         <div id="menu-btn" class="fas fa-bars"></div>
+         <div id="search-btn" class="fas fa-search"></div>
+         <div id="user-btn" class="fas fa-user"></div>
+         <div id="toggle-btn" class="fas fa-sun"></div>
+      </div>
+
+      <div class="profile">
+         <img src="images/pic-1.jpg" class="image" alt="">
+         <h3 class="name">User</h3>
+         <p class="role">Student</p>
+         <a href="profile.html" class="btn">view profile</a>
+         <div class="flex-btn">
+            <a href="login.html" class="option-btn">login</a>
+            <a href="register.html" class="option-btn">register</a>
+         </div>
+      </div>
+   </section>
+</header>
+
+<div class="side-bar">
+   <div id="close-btn">
+      <i class="fas fa-times"></i>
+   </div>
+
+   <div class="profile">
+      <img src="images/pic-1.jpg" class="image" alt="">
+      <h3 class="name">User</h3>
+      <p class="role">Student</p>
+      <a href="profile.html" class="btn">view profile</a>
+   </div>
+
+   <nav class="navbar">
+      <a href="home.html"><i class="fas fa-home"></i><span>home</span></a>
+      <a href="dashboard.html"><i class="fas fa-chart-line"></i><span>dashboard</span></a>
+      <a href="about.html"><i class="fas fa-question"></i><span>about</span></a>
+      <a href="courses.html"><i class="fas fa-graduation-cap"></i><span>courses</span></a>
+      <a href="teachers.html"><i class="fas fa-chalkboard-user"></i><span>teachers</span></a>
+      <a href="forum.html"><i class="fas fa-comments"></i><span>forum</span></a>
+      <a href="contact.html"><i class="fas fa-headset"></i><span>contact us</span></a>
+   </nav>
+</div>
+
+<section class="courses"> <h1 class="heading">Forum de Discussion</h1>
+
+   <div class="box-container" style="margin-bottom: 3rem;">
+      <div class="box" style="width: 100%;">
+         <h3 class="title">Poser une nouvelle question</h3>
+         <form id="topicForm">
+            <p>Titre du sujet <span>*</span></p>
+            <input type="text" id="titre" placeholder="Ex: Problème avec Node.js..." class="box" required style="width: 100%;">
+            
+            <p>Détails <span>*</span></p>
+            <textarea id="contenu" placeholder="Décrivez votre problème en détail..." class="box" required style="width: 100%; height: 150px; resize: none;"></textarea>
+            
+            <button type="submit" class="inline-btn" style="margin-top: 1rem;">Publier la question</button>
+         </form>
+      </div>
+   </div>
+
+   <h1 class="heading">Discussions Récentes</h1>
+
+   <div class="box-container" id="topicsList">
+      <p style="text-align:center; width:100%;">Chargement des discussions...</p>
+   </div>
+
+</section>
+
+<script src="js/script.js"></script>
+
+<script>
+   const API_BASE = 'http://localhost:5000'; // Remplace par ton lien tunnel si nécessaire
+
+   // 1. Charger les sujets
+   async function loadTopics() {
+      try {
+         const res = await fetch(`${API_BASE}/api/forum`);
+         const topics = await res.json();
+         const container = document.getElementById('topicsList');
+         
+         if(topics.length === 0) {
+            container.innerHTML = '<p class="empty">Aucune discussion pour le moment. Soyez le premier !</p>';
+            return;
+         }
+
+         container.innerHTML = topics.map(topic => `
+            <div class="box">
+               <div class="tutor">
+                  <img src="${topic.auteur && topic.auteur.image ? (topic.auteur.image.startsWith('http') ? topic.auteur.image : API_BASE+'/'+topic.auteur.image) : 'images/pic-1.jpg'}" alt="">
+                  <div>
+                     <h3>${topic.auteur ? topic.auteur.nom + ' ' + topic.auteur.prenom : 'Utilisateur Inconnu'}</h3>
+                     <span>${new Date(topic.createdAt).toLocaleDateString()}</span>
+                  </div>
+               </div>
+               <h3 class="title">${topic.titre}</h3>
+               <p>${topic.contenu.substring(0, 100)}...</p>
+               <a href="topic_details.html?id=${topic._id}" class="inline-btn">Voir la discussion</a>
+            </div>
+         `).join('');
+      } catch(e) { 
+         console.error(e);
+         document.getElementById('topicsList').innerHTML = '<p class="empty">Erreur de connexion au serveur.</p>';
+      }
+   }
+
+   // 2. Publier un sujet
+   document.getElementById('topicForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const token = localStorage.getItem('token');
+      
+      // VÉRIFICATION IMPORTANTE
+      if(!token) {
+         alert("Vous devez être connecté pour publier !");
+         window.location.href = 'login.html';
+         return;
+      }
+
+      const titre = document.getElementById('titre').value;
+      const contenu = document.getElementById('contenu').value;
+
+      try {
+         const res = await fetch(`${API_BASE}/api/forum`, {
+            method: 'POST',
+            headers: { 
+               'Content-Type': 'application/json', 
+               'Authorization': `Bearer ${token}` 
+            },
+            body: JSON.stringify({ titre, contenu })
+         });
+
+         const data = await res.json();
+
+         if(res.ok) {
+            alert("Question publiée avec succès !");
+            window.location.reload();
+         } else {
+            console.error("Erreur serveur:", data);
+            alert("Erreur: " + (data.message || "Impossible de publier"));
+            // Si le token est invalide (Erreur 401), on déconnecte l'utilisateur
+            if(res.status === 401) {
+               localStorage.removeItem('token');
+               window.location.href = 'login.html';
+            }
+         }
+      } catch (err) {
+         console.error(err);
+         alert("Erreur de connexion.");
+      }
+   });
+
+   // Lancement au chargement
+   loadTopics();
+</script>
+
+</body>
+</html>

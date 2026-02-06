@@ -254,7 +254,7 @@
       <a href="dashboard.html"><i class="fas fa-chart-line"></i><span>dashboard</span></a>
       <a href="courses.html"><i class="fas fa-graduation-cap"></i><span>courses</span></a>
       <a href="teachers.html"><i class="fas fa-chalkboard-user"></i><span>teachers</span></a>
-      <a href="inbox.html"><i class="fas fa-envelope"></i><span>messages</span></a>
+      <a href="forum.html"><i class="fas fa-comments"></i><span>forum</span></a>
       <a href="contact.html"><i class="fas fa-headset"></i><span>contact us</span></a>
    </nav>
 </div>
@@ -432,12 +432,13 @@
             formData.append('video', document.getElementById('videoFile').files[0]);
 
             try {
-               const res = await fetch(`${API_BASE}/api/cours/video`, {
-                  method: 'POST',
-                  headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
-                  body: formData // Pas de Content-Type manuel pour FormData !
-               });
-
+// ✅ LA CORRECTION :
+const courseId = document.getElementById('videoCourseId').value; // On récupère l'ID
+const res = await fetch(`${API_BASE}/api/cours/${courseId}/videos`, { // On l'injecte dans l'URL
+   method: 'POST',
+   headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+   body: formData
+});
                if(res.ok) {
                   alert("Video uploaded successfully!");
                   location.reload();
@@ -525,36 +526,50 @@
       }
 
       // Création de Cours
-      const courseForm = document.getElementById('createCourseForm');
-      if(courseForm) {
-         courseForm.onsubmit = async (e) => {
-            e.preventDefault();
-            const token = localStorage.getItem('token');
-            const body = {
-               titre: document.getElementById('courseTitre').value,
-               description: document.getElementById('courseDesc').value,
-               specialite: document.getElementById('courseSpecialite').value,
-               public_cible: document.getElementById('coursePublic').value,
-               cle_inscription: document.getElementById('courseKey').value,
-               enseignant_id: user._id || user.id
-            };
+      // Création de Cours (Version corrigée avec FormData pour l'image)
+    const courseForm = document.getElementById('createCourseForm');
+    if(courseForm) {
+    courseForm.onsubmit = async (e) => {
+      e.preventDefault();
+      const token = localStorage.getItem('token');
+      
+      // UTILISATION DE FORMDATA (Obligatoire pour envoyer des fichiers)
+      const formData = new FormData();
+      formData.append('titre', document.getElementById('courseTitre').value);
+      formData.append('description', document.getElementById('courseDesc').value);
+      formData.append('specialite', document.getElementById('courseSpecialite').value);
+      formData.append('public_cible', document.getElementById('coursePublic').value);
+      formData.append('cle_inscription', document.getElementById('courseKey').value);
+      
+      // Ajoute l'enseignant ID (si nécessaire, souvent le backend le prend du token)
+      formData.append('enseignant_id', user._id || user.id); 
 
-            try {
-               const res = await fetch(`${API_BASE}/api/cours`, {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                  body: JSON.stringify(body)
-               });
-               if(res.ok) {
-                  alert("Course created successfully!");
-                  location.reload();
-               } else {
-                  const data = await res.json();
-                  alert("Error: " + data.message);
-               }
-            } catch(err) { console.error(err); }
-         };
+      // ⚠️ Assure-toi d'avoir un <input type="file" id="courseImage"> dans ton HTML
+      const imageInput = document.getElementById('courseImage');
+      if(imageInput && imageInput.files[0]) {
+          formData.append('image', imageInput.files[0]);
       }
+
+      try {
+         const res = await fetch(`${API_BASE}/api/cours`, {
+            method: 'POST',
+            headers: { 
+               // PAS de Content-Type ici (le navigateur le mettra automatiquement pour FormData)
+               'Authorization': `Bearer ${token}` 
+            },
+            body: formData 
+         });
+
+         if(res.ok) {
+            alert("Course created successfully!");
+            location.reload();
+         } else {
+            const data = await res.json();
+            alert("Error: " + data.message);
+         }
+      } catch(err) { console.error(err); }
+   };
+}
 
       // Création de Quiz
       const quizForm = document.getElementById('createQuizForm');
@@ -566,16 +581,17 @@
             const questions = [];
             
             qForms.forEach(form => {
-               questions.push({
-                  question: form.querySelector('[name="q_text"]').value,
-                  options: [
-                     form.querySelector('[name="opt_0"]').value,
-                     form.querySelector('[name="opt_1"]').value,
-                     form.querySelector('[name="opt_2"]').value,
-                     form.querySelector('[name="opt_3"]').value
-                  ],
-                  correctAnswer: parseInt(form.querySelector('[name="correct"]').value)
-               });
+            
+questions.push({
+   questionText: form.querySelector('[name="q_text"]').value, // 
+   options: [
+      form.querySelector('[name="opt_0"]').value,
+      form.querySelector('[name="opt_1"]').value,
+      form.querySelector('[name="opt_2"]').value,
+      form.querySelector('[name="opt_3"]').value
+   ],
+   correctAnswer: parseInt(form.querySelector('[name="correct"]').value)
+});
             });
             
             const body = {

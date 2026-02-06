@@ -1,65 +1,129 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
-const multer = require('multer');
+const jwt = require('jsonwebtoken');
+const multer = require('multer'); // ✅ On utilise Multer directement ici
 const path = require('path');
 
-// ⚠️ IMPORT IMPORTANT : On importe les modèles séparés
+// Import des Modèles
 const Etudiant = require('../models/etudiant');
 const Enseignant = require('../models/enseignant');
 
 const { protect } = require('../middleware/authMiddleware');
 
-// --- 1. CONFIGURATION MULTER (Images) ---
+// --- 1. CONFIGURATION MULTER SPÉCIALE IMAGES ---
+// On crée une configuration spécifique pour les photos de profil
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, 'uploads/');
+        cb(null, 'uploads/'); // Dossier de destination
     },
     filename: (req, file, cb) => {
+        // Nom du fichier : user-TIMESTAMP.jpg
         cb(null, `user-${Date.now()}${path.extname(file.originalname)}`);
     }
 });
 
-const upload = multer({ 
+// Filtre pour n'accepter que les images
+const fileFilter = (req, file, cb) => {
+    const filetypes = /jpeg|jpg|png/;
+    const mimetype = filetypes.test(file.mimetype);
+    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+    if (mimetype && extname) return cb(null, true);
+    cb(new Error('Images seulement (jpeg, jpg, png)!'));
+};
+
+const uploadProfile = multer({ 
     storage: storage,
-    limits: { fileSize: 5000000 },
-    fileFilter: (req, file, cb) => {
-        const filetypes = /jpeg|jpg|png/;
-        const mimetype = filetypes.test(file.mimetype);
-        const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-        if (mimetype && extname) return cb(null, true);
-        cb(new Error('Images only!'));
+    limits: { fileSize: 5 * 1024 * 1024 }, // Limite 5MB
+    fileFilter: fileFilter
+});
+
+
+// --- 2. ROUTES AUTHENTIFICATION ---
+
+// REGISTER
+router.post('/register', async (req, res) => {
+    try {
+        const { nom, prenom, email, password, role } = req.body;
+        
+        const Model = role === 'enseignant' ? Enseignant : Etudiant;
+
+        const userExists = await Model.findOne({ email });
+        if (userExists) return res.status(400).json({ message: "Cet email est déjà utilisé" });
+
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        const user = await Model.create({
+            nom, prenom, email, role,
+            password: hashedPassword,
+            image: 'images/pic-1.jpg'
+        });
+
+        res.status(201).json({ message: "Compte créé avec succès !" });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
     }
 });
 
-// --- 2. UPDATE PROFILE (CORRIGÉ) ---
-router.put('/update', protect, upload.single('image'), async (req, res) => {
+// LOGIN
+router.post('/login', async (req, res) => {
     try {
-        // 💡 CORRECTION : On choisit le bon modèle selon le rôle
+        const { email, password, role } = req.body;
+        const Model = role === 'enseignant' ? Enseignant : Etudiant;
+
+        const user = await Model.findOne({ email });
+        if (!user) return res.status(400).json({ message: "Identifiants invalides" });
+
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) return res.status(400).json({ message: "Identifiants invalides" });
+
+        const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, {
+            expiresIn: '30d'
+        });
+
+        res.json({
+            token,
+            user: {
+                id: user._id,
+                nom: user.nom,
+                prenom: user.prenom,
+                email: user.email,
+                role: user.role,
+                image: user.image
+            }
+        });
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+
+// --- 3. UPDATE PROFILE (CORRIGÉ) ---
+// ✅ On utilise uploadProfile.single('image') qui est défini dans ce fichier
+router.put('/update', protect, uploadProfile.single('image'), async (req, res) => {
+    try {
         const Model = req.user.role === 'enseignant' ? Enseignant : Etudiant;
-        
         const user = await Model.findById(req.user.id);
 
-        if (!user) {
-            return res.status(404).json({ message: "Utilisateur non trouvé" });
-        }
+        if (!user) return res.status(404).json({ message: "Utilisateur non trouvé" });
 
-        // Mise à jour des champs texte
+        // Mise à jour textes
         user.nom = req.body.nom || user.nom;
         user.prenom = req.body.prenom || user.prenom;
         user.email = req.body.email || user.email;
 
-        // Si une image est envoyée
+        // Mise à jour Image
         if (req.file) {
+            // On normalise le chemin (remplace \ par / pour Windows)
             user.image = req.file.path.replace(/\\/g, "/"); 
         }
 
-        // Changement de mot de passe
+        // Mise à jour Mot de passe
         if (req.body.new_password && req.body.old_password) {
             const isMatch = await bcrypt.compare(req.body.old_password, user.password);
-            if (!isMatch) {
-                return res.status(400).json({ message: "Ancien mot de passe incorrect" });
-            }
+            if (!isMatch) return res.status(400).json({ message: "Ancien mot de passe incorrect" });
+            
             const salt = await bcrypt.genSalt(10);
             user.password = await bcrypt.hash(req.body.new_password, salt);
         }
@@ -73,63 +137,15 @@ router.put('/update', protect, upload.single('image'), async (req, res) => {
                 nom: updatedUser.nom,
                 prenom: updatedUser.prenom,
                 email: updatedUser.email,
-                role: updatedUser.role, // Le rôle est conservé
+                role: updatedUser.role,
                 image: updatedUser.image
             }
         });
 
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Erreur serveur update" });
+        console.error("Erreur update:", error);
+        res.status(500).json({ message: "Erreur serveur lors de la mise à jour" });
     }
 });
-
-// --- 3. ROUTE CHAT (CONTACTS) ---
-// Récupère la liste des gens à qui parler
-router.get('/contacts/:role', protect, async (req, res) => {
-    try {
-        const myRole = req.params.role;
-        let contacts = [];
-
-        // Si je suis étudiant, je veux voir les profs (Enseignant)
-        if (myRole === 'etudiant') {
-            contacts = await Enseignant.find({}).select('nom prenom email role image');
-        } 
-        // Si je suis prof, je veux voir les étudiants (Etudiant)
-        else if (myRole === 'enseignant') {
-            contacts = await Etudiant.find({}).select('nom prenom email role image');
-        }
-
-        res.json(contacts);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Erreur chargement contacts" });
-    }
-});
-
-// --- 4. ROUTE RECHERCHE PROFS ---
-router.get('/teachers', async (req, res) => {
-    try {
-        const keyword = req.query.search
-            ? {
-                $or: [
-                    { nom: { $regex: req.query.search, $options: 'i' } },
-                    { prenom: { $regex: req.query.search, $options: 'i' } },
-                ]
-            }
-            : {};
-
-        const teachers = await Enseignant.find(keyword).select('-password');
-        res.json(teachers);
-    } catch (error) {
-        res.status(500).json({ message: "Erreur recherche profs" });
-    }
-});
-
-// On garde les routes Auth classiques gérées par le Controller
-const { register, login, verifyEmail } = require('../Controller/authController');
-router.post('/register', register);
-router.post('/login', login);
-router.get('/verify/:token/:role', verifyEmail);
 
 module.exports = router;

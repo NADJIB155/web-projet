@@ -754,11 +754,11 @@ body.dark .header{
    font-size: 1.35rem;
 }
 
-.courses .box-container .box .thumb img{
-   width:100%;
-   height: 20rem;
-   object-fit: cover;
-   display:block;
+.courses .box-container .box .thumb img {
+   width: 100%;
+   height: 200px; /* Force une hauteur fixe */
+   object-fit: cover; /* Coupe l'image proprement sans la déformer */
+   border-radius: .5rem;
 }
 
 .courses .box-container .box .title{
