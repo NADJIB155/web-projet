@@ -4,13 +4,85 @@
    <meta charset="UTF-8">
    <meta http-equiv="X-UA-Compatible" content="IE=edge">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>teachers</title>
+   <title>Teachers - LearniX</title>
 
-   <!-- font awesome cdn link  -->
    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css">
 
-   <!-- custom css file link  -->
    <link rel="stylesheet" href="css/style.css">
+   <style>
+   /* Fix for Teacher Grid Layout */
+   .teachers .box-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(30rem, 1fr));
+      gap: 1.5rem;
+      justify-content: center;
+      align-items: flex-start;
+   }
+
+   .teachers .box-container .box {
+      background-color: var(--white);
+      border-radius: .5rem;
+      padding: 2rem;
+      border: var(--border); /* Ensure border variable exists */
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem; /* Space between elements */
+   }
+
+   .teachers .box-container .offer {
+      text-align: center;
+      background-color: #333; /* Dark background for offer */
+      color: #fff;
+   }
+   
+   .teachers .box-container .offer h3 {
+      font-size: 2.5rem;
+      color: #fff;
+      margin-bottom: 1rem;
+   }
+
+   .teachers .box-container .offer p {
+      line-height: 1.8;
+      color: #eee;
+      margin-bottom: 2rem;
+   }
+
+   /* Teacher Card Specifics */
+   .tutor {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      margin-bottom: 1rem;
+   }
+
+   .tutor img {
+      height: 5rem;
+      width: 5rem;
+      border-radius: 50%;
+      object-fit: cover;
+   }
+
+   .tutor h3 {
+      font-size: 1.8rem;
+      color: var(--black);
+      margin-bottom: .2rem;
+   }
+
+   .tutor span {
+      font-size: 1.3rem;
+      color: var(--light-color);
+   }
+
+   .teachers .box p {
+      font-size: 1.4rem;
+      color: var(--light-color);
+      overflow-wrap: break-word; /* Prevents long emails from breaking layout */
+   }
+
+   .teachers .box .inline-btn {
+      margin-top: auto; /* Pushes button to bottom */
+   }
+</style>
 </head>
 <body>
 
@@ -33,7 +105,7 @@
 
       <div class="profile">
          <img src="images/pic-1.jpg" class="image" alt="">
-         <h3 class="name">Username</h3>
+         <h3 class="name">Guest</h3>
          <p class="role">Student</p>
          <a href="profile.html" class="btn">view profile</a>
          <div class="flex-btn">
@@ -76,7 +148,7 @@
       <a href="dashboard.html"><i class="fas fa-chart-line"></i><span>dashboard</span></a>
       <a href="courses.html"><i class="fas fa-graduation-cap"></i><span>courses</span></a>
       <a href="teachers.html"><i class="fas fa-chalkboard-user"></i><span>teachers</span></a>
-   <a href="forum.html"><i class="fas fa-comments"></i><span>forum</span></a>
+      <a href="forum.html"><i class="fas fa-comments"></i><span>forum</span></a>
       <a href="contact.html"><i class="fas fa-headset"></i><span>contact us</span></a>
    </nav>
 
@@ -86,7 +158,6 @@
 
    <h1 class="heading">expert teachers</h1>
 
-   <!-- ✅ Real search (no reload) -->
    <form action="#" class="search-tutor" id="teacherSearchForm">
       <input
          type="text"
@@ -99,7 +170,6 @@
       <button type="button" class="fas fa-xmark" id="teacherSearchClear" aria-label="clear" title="Clear"></button>
    </form>
 
-   <!-- Small helper line -->
    <p id="teacherSearchMeta" style="margin:-0.5rem 0 2rem; font-size:1.45rem; opacity:.85;"></p>
 
    <div class="box-container" id="teacherGrid">
@@ -114,16 +184,17 @@
 
 </section>
 
-<!-- custom js file link  -->
 <script src="js/script.js"></script>
 
-<!-- ✅ teachers page search (front-end filtering) -->
 <script>
    const input = document.getElementById('teacherSearchInput');
    const form = document.getElementById('teacherSearchForm');
    const clearBtn = document.getElementById('teacherSearchClear');
    const grid = document.getElementById('teacherGrid');
    const meta = document.getElementById('teacherSearchMeta');
+
+   // ⚠️ FIXED: Use your Tunnel URL (same as Dashboard)
+   const API_BASE = 'https://wv7pc13r-5000.euw.devtunnels.ms';
 
    function getTeacherCards(){
       return Array.from(grid.querySelectorAll('.teacher-card'));
@@ -138,17 +209,24 @@
    }
 
    // 1. Fetch and Display Teachers
+   // 1. Fetch and Display Teachers (Corrected URL)
    async function loadTeachers() {
-      const API_BASE = 'http://localhost:5000';
+      // ⚠️ IMPORTANT: Use your Tunnel URL (same as Dashboard)
+      const API_BASE = 'https://wv7pc13r-5000.euw.devtunnels.ms'; 
+
       try {
-         const res = await fetch(`${API_BASE}/enseignant`);
+         // ✅ FIXED: Added '/api' prefix to match server routes
+         const res = await fetch(`${API_BASE}/api/enseignant`);
+         
+         if(!res.ok) throw new Error(`HTTP Error: ${res.status}`);
+         
          const teachers = await res.json();
          
          const offerBox = grid.querySelector('.offer');
          grid.innerHTML = '';
-         grid.appendChild(offerBox);
+         if(offerBox) grid.appendChild(offerBox);
 
-         if (teachers.length === 0) {
+         if (!Array.isArray(teachers) || teachers.length === 0) {
             meta.textContent = 'No teachers found.';
             return;
          }
@@ -159,13 +237,15 @@
             card.dataset.name = `${teacher.nom} ${teacher.prenom}`;
             card.dataset.role = teacher.role || 'Teacher';
 
-            const teacherImg = teacher.image ? `${API_BASE}/${teacher.image}` : 'images/pic-2.jpg';
+            // Safe Image Logic
+            let safeImagePath = teacher.image ? teacher.image.replace(/\\/g, '/') : 'images/pic-2.jpg';
+            let teacherImg = safeImagePath.startsWith('http') ? safeImagePath : `${API_BASE}/${safeImagePath}`;
 
             card.innerHTML = `
                <div class="tutor">
                   <img src="${teacherImg}" alt="${teacher.nom}" onerror="this.src='images/pic-2.jpg'">
                   <div>
-                     <h3>${teacher.prenom} ${teacher.nom}</h3>
+                     <h3>${teacher.prenom || ''} ${teacher.nom || 'User'}</h3>
                      <span>${teacher.role || 'Teacher'}</span>
                   </div>
                </div>
@@ -177,32 +257,34 @@
 
          filterTeachers();
       } catch (err) {
-         console.error(err);
-         meta.textContent = 'Error loading teachers.';
+         console.error("Failed to load teachers:", err);
+         meta.textContent = 'Error loading teachers. Check console.';
       }
    }
-
-   function filterTeachers(){
-      const q = (input.value || '').trim().toLowerCase();
+  function filterTeachers(){
+      // Get input value safely
+      const inputVal = input.value || ''; 
+      const q = inputVal.trim().toLowerCase();
+      
       const cards = getTeacherCards();
       const total = cards.length;
-
       let visible = 0;
 
       cards.forEach(card => {
+         // 🛡️ CRASH PROTECTION
          const name = (card.dataset.name || '').toLowerCase();
          const role = (card.dataset.role || '').toLowerCase();
-         const text = (card.innerText || '').toLowerCase();
+         const text = (card.textContent || '').toLowerCase(); // Fallback to visible text
 
+         // Logic: If query is empty OR matches name OR matches role
          const match = !q || name.includes(q) || role.includes(q) || text.includes(q);
 
-         card.style.display = match ? '' : 'none';
+         card.style.display = match ? 'flex' : 'none'; // Use 'flex' to keep layout
          if(match) visible++;
       });
 
       updateMeta(visible, total);
    }
-
    // Prevent reload on submit
    form.addEventListener('submit', (e) => {
       e.preventDefault();
@@ -220,7 +302,6 @@
    });
 
    // Init
-   if (typeof showLoading === 'function') showLoading(grid);
    loadTeachers();
 </script>
 

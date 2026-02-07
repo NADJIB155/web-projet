@@ -264,8 +264,7 @@
    <h1 class="heading">Statistics Overview</h1>
 
    <div class="dashboard-grid" id="statsContainer">
-      <!-- Will be populated by JS -->
-   </div>
+      </div>
 
    <div class="box-container" style="margin-top: 3rem;">
 
@@ -286,8 +285,7 @@
 
       <div class="box student-only hidden">
          <h3>My Learning</h3>
-         <p id="studentStats">0 Enrolled</p>
-         <a href="courses.html" class="inline-btn">view courses</a>
+         <p><span id="miniEnrollmentCount">0</span> Enrolled</p><a href="courses.html" class="inline-btn">view courses</a>
       </div>
 
    </div>
@@ -306,9 +304,15 @@
          <p class="empty">Loading your quizzes...</p>
       </div>
    </div>
+
+   <div class="student-only hidden" id="studentQuizSection" style="margin-top: 4rem;">
+      <h1 class="heading">My Available Quizzes</h1>
+      <div class="quiz-management" id="studentQuizzesGrid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(30rem, 1fr)); gap:1.5rem; background:transparent; border:none; padding:0;">
+         <p class="empty">Checking for quizzes...</p>
+      </div>
+   </div>
 </section>
 
-<!-- Modal for Creating Course -->
 <div class="modal" id="courseModal">
    <div class="modal-content">
       <i class="fas fa-times close-modal" id="closeCourseModal"></i>
@@ -329,12 +333,14 @@
          <p>Enrollment Key (Password for course) <span>*</span></p>
          <input type="text" id="courseKey" class="box" placeholder="Set a secret key" required>
 
+         <p>Course Cover Image <span>*</span></p>
+         <input type="file" id="courseImage" class="box" accept="image/*" required>
+
          <input type="submit" value="Publish Course" class="btn" style="margin-top: 2rem;">
       </form>
    </div>
 </div>
 
-<!-- Modal for Creating Quiz -->
 <div class="modal" id="quizModal">
    <div class="modal-content">
       <i class="fas fa-times close-modal" id="closeQuizModal"></i>
@@ -351,8 +357,7 @@
 
          <div id="questionsContainer">
             <h3>Questions</h3>
-            <!-- Questions added here -->
-         </div>
+            </div>
 
          <button type="button" id="addQuestionBtn" class="option-btn" style="width: auto;">+ Add Question</button>
          <input type="submit" value="Save Quiz" class="btn" style="margin-top: 2rem;">
@@ -377,45 +382,83 @@
 </div>
 
 <script src="js/script.js"></script>
-   <script>
-   // ⚠️ IMPORTANT : Mettez ici votre adresse publique (Tunnel)
+<script src="js/script.js"></script>
+<script>
+   // ⚠️ IMPORTANT : Votre URL Tunnel (Vérifiez qu'elle est toujours active)
    const API_BASE = 'https://wv7pc13r-5000.euw.devtunnels.ms'; 
 
    document.addEventListener('DOMContentLoaded', async () => {
-      console.log("Dashboard initializing...");
-      const user = getCurrentUser();
+      console.log("🚀 Dashboard initializing...");
+
+      // 1. Récupération sécurisée de l'utilisateur
+      let user = null;
+      try {
+          const userStr = localStorage.getItem('user');
+          if (userStr) user = JSON.parse(userStr);
+      } catch(e) { console.error("Erreur lecture user:", e); }
       
+      // 2. Si pas connecté -> Login
       if (!user) {
+         console.warn("Non connecté. Redirection...");
          window.location.href = 'login.html';
          return;
       }
 
-      // 1. Afficher le nom
+      // 3. Affichage du nom
       const welcomeEl = document.getElementById('welcomeMsg');
       if (welcomeEl) welcomeEl.textContent = `${user.prenom || ''} ${user.nom || 'User'}`.trim();
 
-      // 2. Détection du Rôle
-      const isTeacher = (user.role === 'enseignant' || user.role === 'teacher');
-      
-      if (isTeacher) {
+      // 4. Détection du Rôle (Normalisé en minuscule)
+      const role = (user.role || "").toLowerCase().trim();
+      console.log("👤 Rôle détecté :", role);
+
+      // Reset de l'interface (On cache tout par défaut)
+      document.querySelectorAll('.teacher-only').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.student-only').forEach(el => el.classList.add('hidden'));
+
+      // 5. Aiguillage Prof vs Étudiant
+      if (role === 'enseignant' || role === 'teacher') {
          // --- MODE PROFESSEUR ---
+         console.log(">>> Mode Professeur activé");
          document.querySelectorAll('.teacher-only').forEach(el => el.classList.remove('hidden'));
-         const heading = document.getElementById('coursesHeading');
-         if(heading) heading.textContent = "My Created Courses";
+         
+         const h = document.getElementById('coursesHeading');
+         if(h) h.textContent = "My Created Courses";
          
          setupTeacherActions(user);
          await loadTeacherDashboard(user);
+
       } else {
-         // --- MODE ÉTUDIANT ---
+         // --- MODE ÉTUDIANT (Par défaut) ---
+         console.log(">>> Mode Étudiant activé");
          document.querySelectorAll('.student-only').forEach(el => el.classList.remove('hidden'));
-         const heading = document.getElementById('coursesHeading');
-         if(heading) heading.textContent = "My Enrolled Courses";
+         
+         const h = document.getElementById('coursesHeading');
+         if(h) h.textContent = "My Enrolled Courses";
          
          await loadStudentDashboard(user);
       }
 
-      // 3. Gestion de l'Upload Vidéo (Ajouté)
+      // 6. Gestion du Formulaire Upload Vidéo
+      setupVideoUpload();
+   });
+
+   // ==========================================
+   // 🛠️ FONCTIONS UTILITAIRES & ACTIONS
+   // ==========================================
+
+   function openVideoModal(courseId) {
+      document.getElementById('videoCourseId').value = courseId;
+      document.getElementById('videoModal').style.display = 'flex';
+   }
+
+   function setupVideoUpload() {
       const videoForm = document.getElementById('uploadVideoForm');
+      const closeVid = document.getElementById('closeVideoModal');
+      const vidModal = document.getElementById('videoModal');
+
+      if(closeVid) closeVid.onclick = () => vidModal.style.display = 'none';
+
       if(videoForm) {
          videoForm.onsubmit = async (e) => {
             e.preventDefault();
@@ -432,23 +475,24 @@
             formData.append('video', document.getElementById('videoFile').files[0]);
 
             try {
-// ✅ LA CORRECTION :
-const courseId = document.getElementById('videoCourseId').value; // On récupère l'ID
-const res = await fetch(`${API_BASE}/api/cours/${courseId}/videos`, { // On l'injecte dans l'URL
-   method: 'POST',
-   headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
-   body: formData
-});
+               const cId = document.getElementById('videoCourseId').value;
+               const token = localStorage.getItem('token');
+               const res = await fetch(`${API_BASE}/api/cours/${cId}/videos`, {
+                  method: 'POST',
+                  headers: { 'Authorization': `Bearer ${token}` },
+                  body: formData
+               });
+               
                if(res.ok) {
-                  alert("Video uploaded successfully!");
+                  alert("✅ Video uploaded successfully!");
                   location.reload();
                } else {
                   const data = await res.json();
-                  alert("Error: " + data.message);
+                  alert("❌ Error: " + (data.message || "Upload failed"));
                }
             } catch(err) {
                console.error(err);
-               alert("Upload failed.");
+               alert("❌ Upload failed (Network Error).");
             } finally {
                btn.disabled = false;
                btn.value = "Upload";
@@ -456,32 +500,19 @@ const res = await fetch(`${API_BASE}/api/cours/${courseId}/videos`, { // On l'in
             }
          };
       }
-
-      // Fermeture modale vidéo
-      const closeVid = document.getElementById('closeVideoModal');
-      const vidModal = document.getElementById('videoModal');
-      if(closeVid) closeVid.onclick = () => vidModal.style.display = 'none';
-   });
-
-   // --- FONCTIONS GLOBALES (Accessibles via onclick) ---
-
-   function openVideoModal(courseId) {
-      document.getElementById('videoCourseId').value = courseId;
-      document.getElementById('videoModal').style.display = 'flex';
    }
 
-   // TEACHER ACTIONS
    function setupTeacherActions(user) {
       const courseModal = document.getElementById('courseModal');
-      const openCourseBtn = document.getElementById('openCreateCourse');
-      const closeCourseBtn = document.getElementById('closeCourseModal');
-
       const quizModal = document.getElementById('quizModal');
-      const openQuizBtn = document.getElementById('openCreateQuiz');
-      const closeQuizBtn = document.getElementById('closeQuizModal');
       
-      const addQBtn = document.getElementById('addQuestionBtn');
-      const questionsContainer = document.getElementById('questionsContainer');
+      // Boutons d'ouverture
+      const openCourseBtn = document.getElementById('openCreateCourse');
+      const openQuizBtn = document.getElementById('openCreateQuiz');
+      
+      // Boutons de fermeture
+      const closeCourseBtn = document.getElementById('closeCourseModal');
+      const closeQuizBtn = document.getElementById('closeQuizModal');
 
       if(openCourseBtn) openCourseBtn.onclick = () => courseModal.classList.add('active');
       if(closeCourseBtn) closeCourseBtn.onclick = () => courseModal.classList.remove('active');
@@ -489,29 +520,31 @@ const res = await fetch(`${API_BASE}/api/cours/${courseId}/videos`, { // On l'in
       if(openQuizBtn) openQuizBtn.onclick = () => quizModal.classList.add('active');
       if(closeQuizBtn) closeQuizBtn.onclick = () => quizModal.classList.remove('active');
 
-      // Ajouter une question dynamique
-      if(addQBtn) {
+      // Bouton "Ajouter Question"
+      const addQBtn = document.getElementById('addQuestionBtn');
+      const questionsContainer = document.getElementById('questionsContainer');
+      
+      if(addQBtn && questionsContainer) {
          let qCount = 0;
          addQBtn.onclick = () => {
             qCount++;
             const qDiv = document.createElement('div');
             qDiv.className = 'question-form';
             qDiv.innerHTML = `
-               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                  <p style="margin:0; color:var(--main-color); font-size: 1.8rem;">Question ${qCount}</p>
-                  <button type="button" class="inline-delete-btn" onclick="this.parentElement.parentElement.remove()" style="padding:0.5rem 1rem; font-size:1.2rem;">x</button>
+               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                  <p style="margin:0; color:var(--main-color); font-weight:bold;">Question ${qCount}</p>
+                  <button type="button" class="inline-delete-btn" onclick="this.parentElement.parentElement.remove()">x</button>
                </div>
-               <input type="text" name="q_text" class="box" placeholder="Enter question text here" required>
-               <p>Answer Options</p>
+               <input type="text" name="q_text" class="box" placeholder="Question text" required>
                <div class="options-grid">
                   <input type="text" name="opt_0" class="box" placeholder="Option 1" required>
                   <input type="text" name="opt_1" class="box" placeholder="Option 2" required>
                   <input type="text" name="opt_2" class="box" placeholder="Option 3" required>
                   <input type="text" name="opt_3" class="box" placeholder="Option 4" required>
                </div>
-               <div style="margin-top: 1.5rem; display: flex; align-items: center; gap: 1rem;">
-                  <p style="margin:0;">Correct Option:</p>
-                  <select name="correct" class="box" style="width: auto; margin:0; padding: .5rem 1rem;">
+               <div style="margin-top: 1rem;">
+                  <p>Correct Answer:</p>
+                  <select name="correct" class="box" style="width: auto;">
                      <option value="0">Option 1</option>
                      <option value="1">Option 2</option>
                      <option value="2">Option 3</option>
@@ -521,57 +554,40 @@ const res = await fetch(`${API_BASE}/api/cours/${courseId}/videos`, { // On l'in
             `;
             questionsContainer.appendChild(qDiv);
          };
-         // Ajouter une question par défaut
-         if(questionsContainer.children.length === 1) addQBtn.click();
+         // Ajouter une première question par défaut
+         if(questionsContainer.children.length <= 1) addQBtn.click();
+      }
+      
+      // Submit Create Course
+      const courseForm = document.getElementById('createCourseForm');
+      if(courseForm) {
+         courseForm.onsubmit = async (e) => {
+            e.preventDefault();
+            const token = localStorage.getItem('token');
+            const formData = new FormData();
+            formData.append('titre', document.getElementById('courseTitre').value);
+            formData.append('description', document.getElementById('courseDesc').value);
+            formData.append('specialite', document.getElementById('courseSpecialite').value);
+            formData.append('public_cible', document.getElementById('coursePublic').value);
+            formData.append('cle_inscription', document.getElementById('courseKey').value);
+            formData.append('enseignant_id', user._id || user.id);
+            
+            const imgInput = document.getElementById('courseImage');
+            if(imgInput.files[0]) formData.append('image', imgInput.files[0]);
+
+            try {
+               const res = await fetch(`${API_BASE}/api/cours`, {
+                  method: 'POST',
+                  headers: { 'Authorization': `Bearer ${token}` },
+                  body: formData
+               });
+               if(res.ok) { alert("Course Created!"); location.reload(); }
+               else { alert("Error creating course"); }
+            } catch(err) { console.error(err); }
+         };
       }
 
-      // Création de Cours
-      // Création de Cours (Version corrigée avec FormData pour l'image)
-    const courseForm = document.getElementById('createCourseForm');
-    if(courseForm) {
-    courseForm.onsubmit = async (e) => {
-      e.preventDefault();
-      const token = localStorage.getItem('token');
-      
-      // UTILISATION DE FORMDATA (Obligatoire pour envoyer des fichiers)
-      const formData = new FormData();
-      formData.append('titre', document.getElementById('courseTitre').value);
-      formData.append('description', document.getElementById('courseDesc').value);
-      formData.append('specialite', document.getElementById('courseSpecialite').value);
-      formData.append('public_cible', document.getElementById('coursePublic').value);
-      formData.append('cle_inscription', document.getElementById('courseKey').value);
-      
-      // Ajoute l'enseignant ID (si nécessaire, souvent le backend le prend du token)
-      formData.append('enseignant_id', user._id || user.id); 
-
-      // ⚠️ Assure-toi d'avoir un <input type="file" id="courseImage"> dans ton HTML
-      const imageInput = document.getElementById('courseImage');
-      if(imageInput && imageInput.files[0]) {
-          formData.append('image', imageInput.files[0]);
-      }
-
-      try {
-         const res = await fetch(`${API_BASE}/api/cours`, {
-            method: 'POST',
-            headers: { 
-               // PAS de Content-Type ici (le navigateur le mettra automatiquement pour FormData)
-               'Authorization': `Bearer ${token}` 
-            },
-            body: formData 
-         });
-
-         if(res.ok) {
-            alert("Course created successfully!");
-            location.reload();
-         } else {
-            const data = await res.json();
-            alert("Error: " + data.message);
-         }
-      } catch(err) { console.error(err); }
-   };
-}
-
-      // Création de Quiz
+      // Submit Create Quiz
       const quizForm = document.getElementById('createQuizForm');
       if(quizForm) {
          quizForm.onsubmit = async (e) => {
@@ -581,19 +597,18 @@ const res = await fetch(`${API_BASE}/api/cours/${courseId}/videos`, { // On l'in
             const questions = [];
             
             qForms.forEach(form => {
-            
-questions.push({
-   questionText: form.querySelector('[name="q_text"]').value, // 
-   options: [
-      form.querySelector('[name="opt_0"]').value,
-      form.querySelector('[name="opt_1"]').value,
-      form.querySelector('[name="opt_2"]').value,
-      form.querySelector('[name="opt_3"]').value
-   ],
-   correctAnswer: parseInt(form.querySelector('[name="correct"]').value)
-});
+               questions.push({
+                  questionText: form.querySelector('[name="q_text"]').value,
+                  options: [
+                     form.querySelector('[name="opt_0"]').value,
+                     form.querySelector('[name="opt_1"]').value,
+                     form.querySelector('[name="opt_2"]').value,
+                     form.querySelector('[name="opt_3"]').value
+                  ],
+                  correctAnswer: parseInt(form.querySelector('[name="correct"]').value)
+               });
             });
-            
+
             const body = {
                titre: document.getElementById('quizTitle').value,
                description: document.getElementById('quizDesc').value,
@@ -608,19 +623,16 @@ questions.push({
                   headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                   body: JSON.stringify(body)
                });
-               if(res.ok) {
-                  alert("Quiz created!");
-                  location.reload();
-               } else {
-                  const data = await res.json();
-                  alert("Error: " + data.message);
-               }
+               if(res.ok) { alert("Quiz Created!"); location.reload(); }
+               else { alert("Error creating quiz"); }
             } catch(err) { console.error(err); }
          };
       }
    }
 
-   // LOAD DATA: TEACHER
+   // ==========================================
+   // 👨‍🏫 CHARGEMENT DONNÉES PROFESSEUR
+   // ==========================================
    async function loadTeacherDashboard(user) {
       const grid = document.getElementById('coursesGrid');
       const statsContainer = document.getElementById('statsContainer');
@@ -631,13 +643,16 @@ questions.push({
          const res = await fetch(`${API_BASE}/api/cours`);
          const allCourses = await res.json();
 
-         const teacherId = user._id || user.id;
-         // Filtrer les cours de CE prof
-         const myCourses = allCourses.filter(c => c.enseignant && (c.enseignant._id === teacherId || c.enseignant === teacherId));
-         
-         // 1. Stats
+         // Filtrage Strict
+         const teacherId = String(user._id || user.id);
+         const myCourses = allCourses.filter(c => {
+             const tId = c.enseignant ? (c.enseignant._id || c.enseignant) : null;
+             return tId && String(tId) === teacherId;
+         });
+
+         // Stats
          let totalStudents = 0;
-         myCourses.forEach(c => totalStudents += (c.etudiants_inscrits?.length || 0));
+         myCourses.forEach(c => totalStudents += (Array.isArray(c.etudiants_inscrits) ? c.etudiants_inscrits.length : 0));
 
          if(statsContainer) {
             statsContainer.innerHTML = `
@@ -651,20 +666,20 @@ questions.push({
                </div>
                <div class="stat-card">
                   <i class="fas fa-question-circle"></i>
-                  <div><h3 id="quizCountStat">0</h3><p>Quizzes</p></div>
+                  <div><h3 id="quizCountStat">Loading...</h3><p>Quizzes</p></div>
                </div>
             `;
          }
 
-         // 2. Courses Grid
+         // Affichage Cours
          if(grid) {
             grid.innerHTML = '';
+            const courseSelect = document.getElementById('quizCourse');
+            if(courseSelect) courseSelect.innerHTML = '<option value="">Select a course</option>';
+
             if(myCourses.length === 0) {
                grid.innerHTML = '<p class="empty">No courses created yet.</p>';
             } else {
-               const courseSelect = document.getElementById('quizCourse');
-               if(courseSelect) courseSelect.innerHTML = '<option value="">Select a course</option>';
-
                myCourses.forEach(course => {
                   let imgUrl = course.image ? (course.image.startsWith('http') ? course.image : `${API_BASE}/${course.image}`) : 'images/thumb-1.png';
                   const box = document.createElement('div');
@@ -683,7 +698,7 @@ questions.push({
                   `;
                   grid.appendChild(box);
 
-                  // Remplir la liste déroulante pour les Quiz
+                  // Remplir la liste pour créer des quiz
                   if(courseSelect) {
                      const opt = document.createElement('option');
                      opt.value = course._id;
@@ -694,66 +709,81 @@ questions.push({
             }
          }
 
-         // 3. Load Quizzes
+         // Chargement Quiz
          if(quizList) {
             quizList.innerHTML = '';
             let totalQuizzes = 0;
-            for(const course of myCourses) {
-               try {
-                  const qRes = await fetch(`${API_BASE}/api/quizzes/${course._id}`, {
-                     headers: { 'Authorization': `Bearer ${token}` }
+            const promises = myCourses.map(c => 
+               fetch(`${API_BASE}/api/quizzes/${c._id}`, { headers: {'Authorization': `Bearer ${token}`} })
+               .then(r => r.json()).catch(() => [])
+            );
+            const results = await Promise.all(promises);
+            
+            results.forEach((quizzes, idx) => {
+               if(Array.isArray(quizzes) && quizzes.length > 0) {
+                  totalQuizzes += quizzes.length;
+                  const cTitle = myCourses[idx].titre;
+                  quizzes.forEach(quiz => {
+                     const div = document.createElement('div');
+                     div.className = 'quiz-item';
+                     div.innerHTML = `
+                        <div class="info">
+                           <h4>${quiz.titre}</h4>
+                           <p>Course: ${cTitle} | ${quiz.questions.length} Qs</p>
+                        </div>
+                        <div class="btns">
+                           <button class="inline-delete-btn" onclick="deleteQuiz('${quiz._id}')"><i class="fas fa-trash"></i></button>
+                        </div>
+                     `;
+                     quizList.appendChild(div);
                   });
-                  const quizzes = await qRes.json();
-                  if (Array.isArray(quizzes)) {
-                     totalQuizzes += quizzes.length;
-                     quizzes.forEach(quiz => {
-                        const div = document.createElement('div');
-                        div.className = 'quiz-item';
-                        div.innerHTML = `
-                           <div class="info">
-                              <h4>${quiz.titre}</h4>
-                              <p>Course: ${course.titre} | Questions: ${quiz.questions.length}</p>
-                           </div>
-                           <div class="btns">
-                              <button class="inline-delete-btn" onclick="deleteQuiz('${quiz._id}')"><i class="fas fa-trash"></i></button>
-                           </div>
-                        `;
-                        quizList.appendChild(div);
-                     });
-                  }
-               } catch(e) {}
-            }
-            const qStat = document.getElementById('quizCountStat');
-            if(qStat) qStat.textContent = totalQuizzes;
+               }
+            });
+            document.getElementById('quizCountStat').textContent = totalQuizzes;
             if(totalQuizzes === 0) quizList.innerHTML = '<p class="empty">No quizzes created.</p>';
          }
 
-      } catch (err) { 
-         console.error(err);
-      }
+      } catch (err) { console.error(err); }
    }
 
-   // LOAD DATA: STUDENT
+   // ==========================================
+   // 🎓 CHARGEMENT DONNÉES ÉTUDIANT
+   // ==========================================
+  // 🎓 CHARGEMENT DONNÉES ÉTUDIANT (Mise à jour)
    async function loadStudentDashboard(user) {
       const grid = document.getElementById('coursesGrid');
       const statsContainer = document.getElementById('statsContainer');
+      const quizSection = document.getElementById('studentQuizSection');
+      const token = localStorage.getItem('token');
+
       try {
-         const res = await fetch(`${API_BASE}/api/cours`);
-         const allCourses = await res.json();
-         const studentId = user._id || user.id;
+         // 1. Cours Inscrits
+         const res = await fetch(`${API_BASE}/api/cours/enrolled`, {
+             headers: { 'Authorization': `Bearer ${token}` }
+         });
+         const enrolledCourses = await res.json();
 
-         // Filtrer les cours où l'étudiant est inscrit
-         const enrolledCourses = allCourses.filter(c => c.etudiants_inscrits && c.etudiants_inscrits.includes(studentId));
+         // 🔥 AJOUT ICI : Mise à jour du petit chiffre dans la sidebar "My Learning"
+         const miniCount = document.getElementById('miniEnrollmentCount');
+         if(miniCount) {
+             miniCount.textContent = enrolledCourses.length;
+         }
 
+         // 2. Stats (Cartes principales)
          if(statsContainer) {
             statsContainer.innerHTML = `
                <div class="stat-card">
                   <i class="fas fa-graduation-cap"></i>
                   <div><h3>${enrolledCourses.length}</h3><p>Active Courses</p></div>
                </div>
+               <div class="stat-card">
+                  <i class="fas fa-tasks"></i>
+                  <div><h3 id="studentQuizCount">0</h3><p>Available Quizzes</p></div>
+               </div>
             `;
          }
 
+         // 3. Affichage Grille
          if(grid) {
             grid.innerHTML = '';
             if(enrolledCourses.length === 0) {
@@ -775,12 +805,58 @@ questions.push({
                });
             }
          }
-      } catch (err) { 
-         console.error(err);
-      }
+
+         // 4. Charger Quiz Étudiant
+         if(enrolledCourses.length > 0 && quizSection) {
+            quizSection.classList.remove('hidden');
+            await loadStudentQuizzes(enrolledCourses, token);
+         }
+
+      } catch (err) { console.error(err); }
+   }
+   async function loadStudentQuizzes(courses, token) {
+      const quizGrid = document.getElementById('studentQuizzesGrid');
+      if(!quizGrid) return;
+      
+      quizGrid.innerHTML = '';
+      let totalQuizzes = 0;
+
+      const promises = courses.map(c => 
+         fetch(`${API_BASE}/api/quizzes/${c._id}`, { headers: {'Authorization': `Bearer ${token}`} })
+         .then(r => r.json()).catch(() => [])
+      );
+      const results = await Promise.all(promises);
+
+      results.forEach((quizzes, idx) => {
+         if(Array.isArray(quizzes) && quizzes.length > 0) {
+            totalQuizzes += quizzes.length;
+            const cTitle = courses[idx].titre;
+            quizzes.forEach(quiz => {
+               const box = document.createElement('div');
+               box.className = 'box';
+               box.style.border = "var(--border)";
+               box.style.padding = "2rem";
+               box.style.background = "var(--white)";
+               box.innerHTML = `
+                  <h3 style="font-size:1.6rem; margin-bottom:1rem;">${quiz.titre}</h3>
+                  <p style="font-size:1.4rem; color:var(--light-color); margin-bottom:1.5rem;">
+                     Course: <span style="color:var(--main-color);">${cTitle}</span>
+                  </p>
+                  <a href="take_quiz.html?id=${quiz._id}" class="inline-btn" style="width:100%; text-align:center;">Start Quiz</a>
+               `;
+               quizGrid.appendChild(box);
+            });
+         }
+      });
+      
+      const countEl = document.getElementById('studentQuizCount');
+      if(countEl) countEl.textContent = totalQuizzes;
+      if(totalQuizzes === 0) quizGrid.innerHTML = '<p class="empty">No quizzes available.</p>';
    }
 
-   // --- SUPPRESSION ---
+   // ==========================================
+   // 🗑️ SUPPRESSION
+   // ==========================================
    async function deleteQuiz(id) {
       if(!confirm("Delete this quiz?")) return;
       const token = localStorage.getItem('token');

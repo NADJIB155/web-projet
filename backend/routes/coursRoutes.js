@@ -3,22 +3,18 @@ const router = express.Router();
 const multer = require('multer');
 const path = require('path');
 const { protect } = require('../middleware/authMiddleware');
-
-// ✅ IMPORT DU CONTROLLER (Vérifie que le chemin est bon)
 const coursController = require('../Controller/coursController');
 
 // ==========================================
 // CONFIGURATION MULTER (Images & Vidéos)
 // ==========================================
 
-// Configuration du stockage
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        // On sépare les dossiers selon le type de fichier
+        // Séparation des dossiers : images dans uploads/, vidéos dans uploads/videos/
         if (file.fieldname === 'video') {
             cb(null, 'uploads/videos/');
         } else {
-            // Pour l'image du cours (fieldname === 'image')
             cb(null, 'uploads/'); 
         }
     },
@@ -27,43 +23,35 @@ const storage = multer.diskStorage({
     }
 });
 
-// Filtre pour accepter images et vidéos
 const fileFilter = (req, file, cb) => {
     if (file.fieldname === "image") {
-        // Accepter seulement les images
         if (!file.mimetype.startsWith('image/')) {
             return cb(new Error('Seules les images sont autorisées pour la miniature !'), false);
         }
     }
-    // (Tu peux ajouter un filtre vidéo ici si tu veux)
     cb(null, true);
 };
 
 const upload = multer({ 
     storage: storage,
     fileFilter: fileFilter,
-    limits: { fileSize: 500 * 1024 * 1024 } // Limite 500MB (pour les grosses vidéos)
+    limits: { fileSize: 2000 * 1024 * 1024 } // Limite à 20000MB pour les vidéos
 });
 
 // ==========================================
 // ROUTES
 // ==========================================
 
-// 1. CRÉER UN COURS (Avec upload d'image) 🆕
-// C'est la route qui te manquait pour le "Publish Course"
-router.post('/', 
-    protect, 
-    upload.single('image'), // 'image' doit correspondre au name dans ton FormData frontend
-    coursController.createCourse
-);
+// 1. CRÉER UN COURS (Accepte une image obligatoire lors de la création)
+router.post('/', protect, upload.single('image'), coursController.createCourse);
 
-// 2. RÉCUPÉRER TOUS LES COURS
+// 2. RÉCUPÉRER TOUS LES COURS (Vérifie le nom dans ton Controller : getAllCourses ou getAllCours)
 router.get('/', coursController.getAllCourses);
 
-// 3. RÉCUPÉRER LES COURS DU PROF CONNECTÉ (Dashboard)
+// 3. RÉCUPÉRER LES COURS DU PROF (Dashboard)
 router.get('/my-courses', protect, coursController.getMyCourses);
 
-// 4. RÉCUPÉRER LES COURS INSCRITS (Pour l'étudiant)
+// 4. RÉCUPÉRER LES COURS INSCRITS (Étudiant)
 router.get('/enrolled', protect, coursController.getEnrolledCourses);
 
 // 5. DÉTAILS D'UN COURS UNIQUE
@@ -78,11 +66,7 @@ router.delete('/:id', protect, coursController.deleteCourse);
 // 8. S'INSCRIRE À UN COURS
 router.post('/:id/enroll', protect, coursController.enrollStudent);
 
-// 9. AJOUTER UNE VIDÉO (Avec upload vidéo)
-router.post('/:id/videos', 
-    protect, 
-    upload.single('video'), // 'video' doit correspondre au name dans le frontend
-    coursController.addVideo
-);
+// 9. AJOUTER UNE VIDÉO À UN COURS EXISTANT
+router.post('/:id/videos', protect, upload.single('video'), coursController.addVideo);
 
 module.exports = router;

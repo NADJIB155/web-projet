@@ -28,6 +28,9 @@ connectDB();
 const path = require('path');
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+
+
+
 // ==========================================
 // 4. ROUTES
 // ==========================================
@@ -35,11 +38,23 @@ app.get("/", (req, res) => {
   res.send("API E-learning ready!");
 });
 
-app.use("/enseignant", require("./routes/enseignantRoutes"));
+
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/cours", require("./routes/coursRoutes"));
+app.use("/api/enseignant", require("./routes/enseignantRoutes"));
 app.use('/api/forum', require('./routes/forumRoutes'));
 app.use("/api/quizzes", require("./routes/quizRoutes"));
+
+// gestion des erreurs
+
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(err.status || 500).json({
+        success: false,
+        message: err.message || 'Erreur serveur',
+        ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
+    });
+});
 
 // ==========================================
 // 5. DÉMARRAGE SERVEUR

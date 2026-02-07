@@ -129,46 +129,59 @@ window.onscroll = () => {
 // ============================
 // 7. AUTHENTICATION & USER STATE
 // ============================
-const API_URL = 'https://localhost/api';
+// ⚠️ IMPORTANT: Use your Tunnel URL (same as other files)
+const API_URL = 'https://wv7pc13r-5000.euw.devtunnels.ms/api'; 
 
-// Check login status on page load
 document.addEventListener('DOMContentLoaded', () => {
     const token = localStorage.getItem('token');
-    const user = JSON.parse(localStorage.getItem('user'));
+    // Use empty object {} as fallback to prevent crash if user is null
+    const user = JSON.parse(localStorage.getItem('user')) || {};
     
     // Select Elements
     const profileName = document.querySelectorAll('.name');
     const profileRole = document.querySelectorAll('.role');
     const profileImages = document.querySelectorAll('.profile .image');
+    
     const headerGuestBtns = document.getElementById('headerGuestBtns');
     const headerUserBtns = document.getElementById('headerUserBtns');
     const headerViewProfile = document.getElementById('headerViewProfile');
     
-    // New Sidebar Elements
     const sideGuestOptions = document.querySelector('.guest-options');
     const sideUserOptions = document.querySelector('.user-options');
     const sideViewProfile = document.querySelector('.view-profile-btn');
 
-    if (token && user) {
+    if (token && user.email) {
         // --- USER IS LOGGED IN ---
         
-        // 1. Update Name & Role everywhere
+        // 1. Update Name
         profileName.forEach(el => el.textContent = user.nom + ' ' + (user.prenom || ''));
-        profileRole.forEach(el => el.textContent = user.role === 'etudiant' ? 'Student' : 'Teacher');
 
-        // 2. Update profile images if user has one
+        // 2. ✅ FIX ROLE DISPLAY (This was your main error)
+        // If role is 'enseignant' OR 'teacher', show Teacher. Otherwise Student.
+        const roleDisplay = (user.role === 'enseignant' || user.role === 'teacher') ? 'Teacher' : 'Student';
+        profileRole.forEach(el => el.textContent = roleDisplay);
+
+        // 3. ✅ FIX IMAGE URL
         if(user.image) {
-            profileImages.forEach(img => img.src = `${API_URL.replace('/api', '')}/${user.image}`);
+            // Remove /api from base URL for images
+            const cleanBase = API_URL.replace('/api', '');
+            // Check if image is already a full link (http) or a relative path (uploads/...)
+            const imgPath = user.image.startsWith('http') ? user.image : `${cleanBase}/${user.image}`;
+            
+            profileImages.forEach(img => {
+                img.src = imgPath;
+                // Add error handler if image fails to load
+                img.onerror = function() { this.src = 'images/pic-1.jpg'; };
+            });
         }
 
-        // 3. Show Logout / Hide Login
+        // 4. UI Visibility (LoggedIn)
         if(headerGuestBtns) headerGuestBtns.style.display = 'none';
         if(headerUserBtns) headerUserBtns.style.display = 'block';
         
         if(sideGuestOptions) sideGuestOptions.style.display = 'none';
         if(sideUserOptions) sideUserOptions.style.display = 'block';
 
-        // 4. Show "View Profile"
         if(headerViewProfile) headerViewProfile.style.display = 'inline-block';
         if(sideViewProfile) sideViewProfile.style.display = 'inline-block';
 
@@ -177,14 +190,13 @@ document.addEventListener('DOMContentLoaded', () => {
         profileName.forEach(el => el.textContent = "Guest");
         profileRole.forEach(el => el.textContent = "Student");
         
-        // Show Login / Hide Logout
+        // UI Visibility (Guest)
         if(headerGuestBtns) headerGuestBtns.style.display = 'flex';
         if(headerUserBtns) headerUserBtns.style.display = 'none';
 
         if(sideGuestOptions) sideGuestOptions.style.display = 'block';
         if(sideUserOptions) sideUserOptions.style.display = 'none';
 
-        // Hide "View Profile"
         if(headerViewProfile) headerViewProfile.style.display = 'none';
         if(sideViewProfile) sideViewProfile.style.display = 'none';
     }

@@ -1,211 +1,203 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
    <meta charset="UTF-8">
    <meta http-equiv="X-UA-Compatible" content="IE=edge">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>profile</title>
+   <title>Profile - LearniX</title>
 
-   <!-- font awesome cdn link  -->
    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css">
-
-   <!-- custom css file link  -->
    <link rel="stylesheet" href="css/style.css">
-
 </head>
-
 <body>
 
-   <header class="header">
+<header class="header">
+   <section class="flex">
+      <a href="home.html" class="logo">LearniX</a>
+      <div class="icons">
+         <div id="menu-btn" class="fas fa-bars"></div>
+         <div id="user-btn" class="fas fa-user"></div>
+         <div id="toggle-btn" class="fas fa-sun"></div>
+      </div>
+      <div class="profile">
+         <img src="images/pic-1.jpg" class="image" alt="">
+         <h3 class="name">Guest</h3>
+         <p class="role">Student</p>
+         <a href="profile.html" class="btn">view profile</a>
+      </div>
+   </section>
+</header>   
 
-      <section class="flex">
-
-         <a href="home.html" class="logo">LearniX</a>
-
-
-         <form action="courses.html" method="get" class="search-form">
-            <input type="text" name="search" required placeholder="search courses..." maxlength="100">
-            <button type="submit" class="fas fa-search"></button>
-         </form>
-
-         <div class="icons">
-            <div id="menu-btn" class="fas fa-bars"></div>
-            <div id="search-btn" class="fas fa-search"></div>
-            <div id="user-btn" class="fas fa-user"></div>
-            <div id="toggle-btn" class="fas fa-sun"></div>
-         </div>
-
-         <div class="profile">
-            <img src="images/pic-1.jpg" class="image" alt="">
-            <h3 class="name">Username</h3>
-            <p class="role">Student</p>
-            <a href="profile.html" class="btn">view profile</a>
-            <div class="flex-btn">
-               <a href="login.html" class="option-btn">login</a>
-               <a href="register.html" class="option-btn">register</a>
-            </div>
-         </div>
-
-      </section>
-
-   </header>
-
-   <div class="side-bar">
-
-   <div id="close-btn">
-      <i class="fas fa-times"></i>
-   </div>
-
+<div class="side-bar">
+   <div id="close-btn"><i class="fas fa-times"></i></div>
    <div class="profile">
       <img src="images/pic-1.jpg" class="image" alt="">
-      
       <h3 class="name">Guest</h3>
       <p class="role">Student</p>
-
-      <a href="profile.html" class="btn view-profile-btn" style="display: none;">view profile</a>
-
-      <div class="flex-btn">
-         <div class="guest-options">
-            <a href="login.html" class="option-btn">login</a>
-            <a href="register.html" class="option-btn">register</a>
-         </div>
-
-         <div class="user-options" style="display: none;">
-            <button onclick="logout()" class="delete-btn">logout</button>
-         </div>
-      </div>
+      <a href="profile.html" class="btn">view profile</a>
    </div>
-
    <nav class="navbar">
       <a href="home.html"><i class="fas fa-home"></i><span>home</span></a>
       <a href="dashboard.html"><i class="fas fa-chart-line"></i><span>dashboard</span></a>
       <a href="courses.html"><i class="fas fa-graduation-cap"></i><span>courses</span></a>
       <a href="teachers.html"><i class="fas fa-chalkboard-user"></i><span>teachers</span></a>
-   <a href="forum.html"><i class="fas fa-comments"></i><span>forum</span></a>
+      <a href="forum.html"><i class="fas fa-comments"></i><span>forum</span></a>
       <a href="contact.html"><i class="fas fa-headset"></i><span>contact us</span></a>
    </nav>
-
 </div>
-   <section class="user-profile">
 
-      <h1 class="heading">your profile</h1>
+<section class="user-profile">
+   <h1 class="heading">Your Profile</h1>
 
-      <div class="info">
-
-         <div class="user">
-            <img src="images/pic-1.jpg" alt="" id="profileImage">
-            <h3 id="profileName">Loading...</h3>
-            <p id="profileRole">...</p>
-            <p id="profileEmail" style="font-size:1.4rem; color:var(--muted); margin-top:0.5rem;">...</p>
-            <a href="update.html" class="inline-btn">update profile</a>
+   <div class="info">
+      <div class="user">
+         <img src="images/pic-1.jpg" class="image" alt="">
+         <h3 class="name">Loading...</h3>
+         <p class="role">...</p>
+         <p class="email" style="font-size:1.4rem; color:var(--light-color); margin-top:0.5rem;"></p>
+         <a href="update.html" class="inline-btn">Update Profile</a>
+      </div>
+   
+      <div class="box-container">
+         <div class="box" id="box1">
+            <div class="flex">
+               <i class="fas fa-bookmark"></i>
+               <div>
+                  <span id="stat1-num">0</span>
+                  <p id="stat1-text">Loading...</p>
+               </div>
+            </div>
+            <a href="#" id="stat1-btn" class="inline-btn">View</a>
          </div>
-
-         <div class="box-container">
-
-            <div class="box">
-               <div class="flex">
-                  <i class="fas fa-graduation-cap"></i>
-                  <div>
-                     <span id="enrolledCourses">0</span>
-                     <p>enrolled courses</p>
-                  </div>
-               </div>
-               <a href="courses.html" class="inline-btn">view courses</a>
-            </div>
-
-            <div class="box">
-               <div class="flex">
-                  <i class="fas fa-certificate"></i>
-                  <div>
-                     <span id="completedQuizzes">0</span>
-                     <p>quizzes completed</p>
-                  </div>
-               </div>
-               <a href="courses.html" class="inline-btn">view courses</a>
-            </div>
-
-            <div class="box">
-               <div class="flex">
-                  <i class="fas fa-clock"></i>
-                  <div>
-                     <span id="memberSince">...</span>
-                     <p>member since</p>
-                  </div>
+   
+         <div class="box" id="box2">
+            <div class="flex">
+               <i class="fas fa-heart"></i> <div>
+                  <span id="stat2-num">0</span>
+                  <p id="stat2-text">Loading...</p>
                </div>
             </div>
-
+            <a href="#" id="stat2-btn" class="inline-btn">View</a>
+         </div>
+   
+         <div class="box">
+            <div class="flex">
+               <i class="fas fa-calendar"></i>
+               <div>
+                  <span>...</span>
+                  <p>Member Since</p>
+               </div>
+            </div>
+            <a href="#" class="inline-btn" style="visibility: hidden;">.</a>
          </div>
       </div>
+   </div>
+</section>
 
-   </section>
+<script src="js/script.js"></script>
+<script>
+   // ⚠️ Votre URL Tunnel
+   const API_BASE = 'https://wv7pc13r-5000.euw.devtunnels.ms'; 
 
-   <script src="js/script.js"></script>
-   <script>
-      document.addEventListener('DOMContentLoaded', () => {
-         const user = getCurrentUser();
+   document.addEventListener('DOMContentLoaded', async () => {
+      const user = getCurrentUser();
+      const token = localStorage.getItem('token');
 
-         if (!user) {
-            showToast("Please login to view profile", "warning");
-            setTimeout(() => window.location.href = 'login.html', 2000);
-            return;
-         }
+      if (!user) {
+         window.location.href = 'login.html';
+         return;
+      }
 
-         // Update profile info
-         document.getElementById('profileName').textContent = `${user.nom} ${user.prenom}`;
-         document.getElementById('profileRole').textContent = user.role === 'etudiant' ? 'Student' : 'Teacher';
-         document.getElementById('profileEmail').textContent = user.email || '';
+      // 1. Remplir les infos de base
+      document.querySelector('.user .name').textContent = `${user.prenom || ''} ${user.nom || ''}`;
+      document.querySelector('.user .role').textContent = user.role;
+      document.querySelector('.user .email').textContent = user.email;
+      
+      if(user.image) {
+         const cleanPath = user.image.replace(/\\/g, '/');
+         const imgUrl = cleanPath.startsWith('http') ? cleanPath : `${API_BASE}/${cleanPath}`;
+         document.querySelector('.user .image').src = imgUrl;
+      }
 
-         if (user.image) {
-            document.getElementById('profileImage').src = `http://localhost:5000/${user.image}`;
-         }
+      // 2. LOGIQUE ADAPTATIVE (Prof vs Étudiant)
+      const isTeacher = (user.role === 'enseignant' || user.role === 'teacher');
+      
+      const stat1Num = document.getElementById('stat1-num');
+      const stat1Text = document.getElementById('stat1-text');
+      const stat1Btn = document.getElementById('stat1-btn');
+      
+      const stat2Num = document.getElementById('stat2-num');
+      const stat2Text = document.getElementById('stat2-text');
+      const stat2Btn = document.getElementById('stat2-btn');
+      
+      // Icône pour la boite 2
+      const box2Icon = document.querySelector('#box2 i');
 
-         // Update member since
-         if (user.createdAt) {
-            const date = new Date(user.createdAt);
-            document.getElementById('memberSince').textContent = date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
-         }
+      try {
+         if (isTeacher) {
+            // --- PROFESSEUR ---
+            // Stat 1 : Cours Créés
+            stat1Text.textContent = "Courses Created";
+            stat1Btn.textContent = "View My Courses";
+            stat1Btn.href = "dashboard.html"; // Redirige vers le dashboard prof
+            
+            // Récupérer les cours du prof
+            const resCourses = await fetch(`${API_BASE}/api/cours?enseignant=${user._id || user.id}`);
+            const myCourses = await resCourses.json();
+            
+            stat1Num.textContent = myCourses.length;
 
-         // Fetch user statistics
-         fetchUserStats(user._id);
-      });
+            // Stat 2 : Total Étudiants
+            stat2Text.textContent = "Total Students";
+            stat2Btn.style.display = 'none'; // Pas de lien direct pour l'instant
+            if(box2Icon) box2Icon.className = "fas fa-users"; // Icône Utilisateurs
 
-      async function fetchUserStats(userId) {
-         try {
-            const token = localStorage.getItem('token');
-            const res = await fetch(`http://localhost:5000/api/users/${userId}/stats`, {
+            let totalStudents = 0;
+            if(Array.isArray(myCourses)) {
+                myCourses.forEach(c => totalStudents += (c.etudiants_inscrits ? c.etudiants_inscrits.length : 0));
+            }
+            stat2Num.textContent = totalStudents;
+
+         } else {
+            // --- ÉTUDIANT ---
+            // Stat 1 : Cours Inscrits
+            stat1Text.textContent = "Enrolled Courses";
+            stat1Btn.textContent = "View Courses";
+            stat1Btn.href = "courses.html";
+
+            const resEnrolled = await fetch(`${API_BASE}/api/cours/enrolled`, {
                headers: { 'Authorization': `Bearer ${token}` }
             });
+            const enrolled = await resEnrolled.json();
+            stat1Num.textContent = enrolled.length;
 
-            if (res.ok) {
-               const stats = await res.json();
-               document.getElementById('enrolledCourses').textContent = stats.enrolledCourses || 0;
-               document.getElementById('completedQuizzes').textContent = stats.completedQuizzes || 0;
-            }
-         } catch (err) {
-            console.error('Error fetching stats:', err);
+            // Stat 2 : Quiz Disponibles (ou complétés, selon votre logique)
+            stat2Text.textContent = "Available Quizzes";
+            stat2Btn.textContent = "Go to Dashboard";
+            stat2Btn.href = "dashboard.html";
+            if(box2Icon) box2Icon.className = "fas fa-tasks"; 
+
+            // Calcul simple des quiz disponibles pour les cours inscrits
+            let totalQuiz = 0;
+            const promises = enrolled.map(c => 
+                fetch(`${API_BASE}/api/quizzes/${c._id}`, { headers: {'Authorization': `Bearer ${token}`} })
+                .then(r => r.json()).catch(() => [])
+            );
+            const results = await Promise.all(promises);
+            results.forEach(arr => { if(Array.isArray(arr)) totalQuiz += arr.length; });
+            
+            stat2Num.textContent = totalQuiz;
          }
+
+         // Date d'inscription (Optionnel, simulé car pas toujours en BDD)
+         const dateBox = document.querySelector('.box:nth-child(3) span');
+         if(dateBox) dateBox.textContent = new Date().toLocaleDateString(); // Ou user.createdAt si dispo
+
+      } catch (err) {
+         console.error(err);
       }
-   </script>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-   <!-- custom js file link  -->
-   <script src="js/script.js"></script>
-
+   });
+</script>
 
 </body>
-
 </html>

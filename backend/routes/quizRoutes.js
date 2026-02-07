@@ -1,32 +1,27 @@
+// backend/routes/quizRoutes.js
 const express = require('express');
 const router = express.Router();
 const quizController = require('../Controller/quizController');
-
-// 1. Import the guards
 const { protect, authorize } = require('../middleware/authMiddleware');
 
-// 2. Apply them to routes
+// 1. Routes spécifiques (Doivent être AVANT les routes avec paramètres dynamiques)
 
-// POST /api/quizzes (Only Teachers can create)
-// Flow: protect -> checks token -> authorize -> checks if teacher -> createQuiz
+// POST /api/quizzes (Prof seulement)
 router.post('/', protect, authorize('enseignant'), quizController.createQuiz);
 
-// POST /api/quizzes/submit (Only Students can submit)
+// POST /api/quizzes/submit (Étudiant seulement)
 router.post('/submit', protect, authorize('etudiant'), quizController.submitQuiz);
 
-// GET /api/quizzes/:courseId (Everyone who is logged in can view)
-router.get('/:courseId', protect, quizController.getQuizzesByCourse);
+// ✅ ROUTE SPÉCIFIQUE : Récupérer un seul quiz par son ID
+// (Doit être avant /:courseId pour ne pas être confondue)
+router.get('/detail/:id', protect, quizController.getQuizById);
 
-// DELETE /api/quizzes/:id (Only Teachers can delete)
+// DELETE (Prof seulement)
 router.delete('/:id', protect, authorize('enseignant'), quizController.deleteQuiz);
-// Dans backend/routes/quizRoutes.js
-router.get('/detail/:id', async (req, res) => {
-    try {
-        const quiz = await require('../models/quiz').findById(req.params.id);
-        res.json(quiz);
-    } catch (err) {
-        res.status(500).json({ message: err.message });
-    }
-});
+
+// 2. Routes génériques (Avec paramètres dynamiques)
+
+// GET /api/quizzes/:courseId (Récupérer tous les quiz d'un cours)
+router.get('/:courseId', protect, quizController.getQuizzesByCourse);
 
 module.exports = router;

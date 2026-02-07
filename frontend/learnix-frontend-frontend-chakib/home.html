@@ -1,75 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
    <meta charset="UTF-8">
    <meta http-equiv="X-UA-Compatible" content="IE=edge">
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>home</title>
+   <title>Home - LearniX</title>
 
-   <!-- font awesome cdn link  -->
    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css">
-
-   <!-- custom css file link  -->
    <link rel="stylesheet" href="css/style.css">
 </head>
-
 <body>
 
-   <header class="header">
-      <section class="flex">
+<header class="header">
+   <section class="flex">
+      <a href="home.html" class="logo">LearniX</a>
+      <form action="courses.html" method="get" class="search-form">
+         <input type="text" name="search" required placeholder="search courses..." maxlength="100">
+         <button type="submit" class="fas fa-search"></button>
+      </form>
+      <div class="icons">
+         <div id="menu-btn" class="fas fa-bars"></div>
+         <div id="search-btn" class="fas fa-search"></div>
+         <div id="user-btn" class="fas fa-user"></div>
+         <div id="toggle-btn" class="fas fa-sun"></div>
+      </div>
 
-         <a href="home.html" class="logo">LearniX</a>
-
-         <form action="courses.html" method="get" class="search-form">
-            <input type="text" name="search" required placeholder="search courses..." maxlength="100">
-            <button type="submit" class="fas fa-search"></button>
-         </form>
-
-         <div class="icons">
-            <div id="menu-btn" class="fas fa-bars"></div>
-            <div id="search-btn" class="fas fa-search"></div>
-            <div id="user-btn" class="fas fa-user"></div>
-            <div id="toggle-btn" class="fas fa-sun"></div>
-         </div>
-
-         <div class="profile">
-            <img src="images/pic-1.jpg" class="image" alt="">
-            <h3 class="name">Username</h3>
-            <p class="role">Student</p>
+      <div class="profile">
+         <img src="images/pic-1.jpg" class="image" alt="">
+         <h3 class="name">Guest</h3>
+         <p class="role">Student</p>
+         
+         <div class="logged-in-btns" style="display: none;">
             <a href="profile.html" class="btn">view profile</a>
             <div class="flex-btn">
-               <a href="login.html" class="option-btn">login</a>
-               <a href="register.html" class="option-btn">register</a>
+               <button onclick="logout()" class="delete-btn">logout</button>
             </div>
          </div>
 
-      </section>
-   </header>
-
-   <div class="side-bar">
-
-   <div id="close-btn">
-      <i class="fas fa-times"></i>
-   </div>
-
-   <div class="profile">
-      <img src="images/pic-1.jpg" class="image" alt="">
-      
-      <h3 class="name">Guest</h3>
-      <p class="role">Student</p>
-
-      <a href="profile.html" class="btn view-profile-btn" style="display: none;">view profile</a>
-
-      <div class="flex-btn">
-         <div class="guest-options">
+         <div class="guest-btns" style="display: flex;">
             <a href="login.html" class="option-btn">login</a>
             <a href="register.html" class="option-btn">register</a>
          </div>
+      </div>
+   </section>
+</header>   
 
-         <div class="user-options" style="display: none;">
+<div class="side-bar">
+   <div id="close-btn"><i class="fas fa-times"></i></div>
+   
+   <div class="profile">
+      <img src="images/pic-1.jpg" class="image" alt="">
+      <h3 class="name">Guest</h3>
+      <p class="role">Student</p>
+      
+      <div class="logged-in-btns" style="display: none;">
+         <a href="profile.html" class="btn">view profile</a>
+         <div class="flex-btn">
             <button onclick="logout()" class="delete-btn">logout</button>
          </div>
+      </div>
+
+      <div class="guest-btns" style="display: flex;">
+         <a href="login.html" class="option-btn">login</a>
+         <a href="register.html" class="option-btn">register</a>
       </div>
    </div>
 
@@ -81,243 +74,169 @@
       <a href="forum.html"><i class="fas fa-comments"></i><span>forum</span></a>
       <a href="contact.html"><i class="fas fa-headset"></i><span>contact us</span></a>
    </nav>
-
 </div>
-   <!-- HERO -->
-   <section class="home-hero">
-      <div class="hero-content">
-         <div class="hero-left">
-            <span class="hero-badge"><i class="fas fa-sparkles"></i> Learn smarter with LearniX</span>
 
-            <h1>Upgrade your skills, one lesson at a time.</h1>
+<section class="home-grid">
 
-            <p>
-               Learn with curated courses, track your progress, and get support from expert tutors.
-               Start today and build real projects.
-            </p>
-
-            <div class="hero-actions" id="heroActions">
-               <a href="courses.html" class="btn hero-btn"><i class="fas fa-graduation-cap"></i> Browse Courses</a>
-               <a href="teachers.html" class="option-btn hero-btn"><i class="fas fa-chalkboard-user"></i> Find Tutors</a>
-            </div>
-
-            <div class="hero-mini-stats">
-               <div class="mini-stat">
-                  <i class="fas fa-play-circle"></i>
-                  <div>
-                     <h3>120+</h3>
-                     <p>video lessons</p>
-                  </div>
-               </div>
-
-               <div class="mini-stat">
-                  <i class="fas fa-users"></i>
-                  <div>
-                     <h3>2,000+</h3>
-                     <p>learners</p>
-                  </div>
-               </div>
-
-               <div class="mini-stat">
-                  <i class="fas fa-certificate"></i>
-                  <div>
-                     <h3>Certificates</h3>
-                     <p>on completion</p>
-                  </div>
-               </div>
-            </div>
-         </div>
-
-         <div class="hero-right">
-            <div class="hero-card">
-               <h3>Continue learning</h3>
-               <p>Pick up where you left off</p>
-
-               <div class="progress-card">
-                  <div class="progress-top">
-                     <span class="progress-title">HTML Basics</span>
-                     <span class="progress-percent">68%</span>
-                  </div>
-
-                  <div class="progress-bar">
-                     <span class="progress-fill" style="width:68%"></span>
-                  </div>
-
-                  <div class="progress-actions">
-                     <a href="watch-video.html" class="inline-btn"><i class="fas fa-play"></i> Resume</a>
-                     <a href="playlist.html" class="inline-option-btn"><i class="far fa-bookmark"></i> Playlist</a>
-                  </div>
-               </div>
-
-               <div class="quick-links">
-                  <a href="profile.html"><i class="fas fa-id-badge"></i><span>Profile</span></a>
-                  <a href="courses.html"><i class="fas fa-layer-group"></i><span>All Courses</span></a>
-                  <a href="contact.html"><i class="fas fa-headset"></i><span>Support</span></a>
-               </div>
-            </div>
-         </div>
-      </div>
-   </section>
-
-   <!-- FEATURED COURSES -->
-   <section class="courses home-featured">
-      <div class="home-section-head">
-         <h1 class="heading">featured courses</h1>
-         <a href="courses.html" class="inline-option-btn">view all</a>
+   <div class="box" style="background: linear-gradient(135deg, #0D0F2E 0%, #1e2252 100%); color: white; text-align: center;">
+      <h3 class="title" id="welcome-title" style="color: white; font-size: 2.5rem; margin-bottom: 1rem;">Welcome back!</h3>
+      <p class="description" id="welcome-text" style="color: #ddd; font-size: 1.6rem; line-height: 1.5; margin-bottom: 2rem;">
+         Learn with curated courses, track your progress, and get support from expert tutors.
+      </p>
+      
+      <div id="student-btns" class="flex-btn" style="gap: 1rem; justify-content: center;">
+          <a href="courses.html" class="inline-btn" style="background-color: var(--main-color);">Explore Courses</a>
+          <a href="contact.html" class="inline-btn" style="background-color: transparent; border: 2px solid var(--main-color); color: white;">Contact Us</a>
       </div>
 
-      <div class="box-container">
-         <p class="empty" style="grid-column: 1/-1;">Loading featured courses...</p>
+      <div id="teacher-btns" class="flex-btn" style="gap: 1rem; display: none; justify-content: center;">
+          <a href="dashboard.html" class="inline-btn" style="background-color: var(--main-color);">Dashboard</a>
+          <a href="dashboard.html" class="inline-btn" style="background-color: transparent; border: 2px solid var(--main-color); color: white;">Analytics</a>
       </div>
-   </section>
+   </div>
 
-   <!-- BECOME A TUTOR (only this block, clean UI) -->
-   <section class="home-cta">
-      <div class="cta-box">
-         <div class="cta-left">
-            <h2>Become a tutor on LearniX</h2>
-            <p>
-               Share your knowledge, grow your audience, and help students reach their goals.
-               Create playlists, upload content, and build your teaching profile.
-            </p>
-            <div class="cta-actions">
-               <a href="register.html" class="btn"><i class="fas fa-bolt"></i> Get started</a>
-               <a href="teachers.html" class="inline-option-btn"><i class="fas fa-users"></i> Explore tutors</a>
-            </div>
-         </div>
+   <div class="box" 
+        style="
+           background: linear-gradient(145deg, #1a1d3a, #23274a); 
+           border-radius: 2rem; 
+           border: 1px solid rgba(255,255,255,0.1); 
+           box-shadow: 0 1.5rem 3.5rem rgba(0,0,0,0.2); 
+           position: relative; 
+           overflow: hidden; 
+           transition: transform 0.3s ease;
+           text-align: center; /* Tout centrer */
+        "
+        onmouseover="this.style.transform='translateY(-5px)'"
+        onmouseout="this.style.transform='translateY(0px)'"
+   >
+      <div style="position: absolute; top: -50px; right: -50px; width: 150px; height: 150px; background: #8e44ad; filter: blur(80px); opacity: 0.4;"></div>
 
-         <div class="cta-right">
-            <div class="cta-points">
-               <div class="point">
-                  <i class="fas fa-layer-group"></i>
-                  <div>
-                     <h3>Create playlists</h3>
-                     <p>Organize lessons and topics clearly.</p>
-                  </div>
-               </div>
-
-               <div class="point">
-                  <i class="fas fa-chart-line"></i>
-                  <div>
-                     <h3>Reach more students</h3>
-                     <p>Get discovered through categories.</p>
-                  </div>
-               </div>
-
-               <div class="point">
-                  <i class="fas fa-shield-halved"></i>
-                  <div>
-                     <h3>Trusted platform</h3>
-                     <p>Professional layout & learning flow.</p>
-                  </div>
-               </div>
-            </div>
-         </div>
+      <div id="student-hero">
+          <h3 class="title" style="color: white; font-size: 2.2rem; font-weight: 700; margin-bottom: 2rem;">Start Learning</h3>
+          
+          <div class="flex" style="flex-direction: column; align-items: center; gap: 1.5rem; margin-bottom: 2.5rem;">
+             <div style="width: 7rem; height: 7rem; background: rgba(255, 165, 0, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(255, 165, 0, 0.2);">
+                <i class="fas fa-rocket" style="font-size: 3.5rem; color: #ff9f43;"></i>
+             </div>
+             <div>
+                <span style="font-size: 1.8rem; color: white; font-weight: 600; display: block; margin-bottom: 0.5rem;">Explore Catalog</span>
+                <p style="font-size: 1.4rem; color: #a4b0be;">Unlock new skills today</p>
+             </div>
+          </div>
+          
+          <a href="courses.html" class="inline-btn" style="background: linear-gradient(90deg, #ff9f43, #ff6b6b); color: white; width: 100%; text-align: center; border-radius: 1rem; box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3); border: none;">View All Courses</a>
       </div>
-   </section>
 
-  <script src="js/script.js"></script>
+      <div id="teacher-hero" style="display: none;">
+          <div style="margin-bottom: 1.5rem;">
+             <h3 class="title" style="color: white; font-size: 2.2rem; font-weight: 700; margin-bottom: 0.5rem;">Quick Action</h3>
+             <span style="background: rgba(142, 68, 173, 0.2); color: #a29bfe; padding: 0.3rem 1rem; border-radius: 2rem; font-size: 1.2rem;">Teacher Mode</span>
+          </div>
+
+          <div class="flex" style="flex-direction: column; align-items: center; gap: 1.5rem; margin-bottom: 2.5rem;">
+             <div style="width: 7rem; height: 7rem; background: linear-gradient(135deg, #6c5ce7, #8e44ad); border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 25px rgba(142, 68, 173, 0.4); border: 1px solid rgba(255,255,255,0.1);">
+                <i class="fas fa-plus" style="font-size: 3rem; color: white;"></i>
+             </div>
+             <div>
+                <span style="font-size: 1.8rem; color: white; font-weight: 600; display: block; margin-bottom: 0.5rem;">New Content?</span>
+                <p style="font-size: 1.4rem; color: #a4b0be;">Share your knowledge</p>
+             </div>
+          </div>
+          
+          <a href="dashboard.html" class="inline-btn" style="background: linear-gradient(90deg, #8e44ad, #6c5ce7); color: white; width: 100%; text-align: center; border-radius: 1.2rem; font-weight: 600; letter-spacing: 0.5px; box-shadow: 0 8px 20px rgba(108, 92, 231, 0.3); border: none; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'"><i class="fas fa-layer-group" style="margin-right: 0.5rem;"></i> Create New Course</a>
+      </div>
+   </div>
+
+</section>
+
+<section class="courses">
+   <h1 class="heading">our courses</h1>
+   <div class="box-container" id="coursesGrid">
+      <p class="empty">Loading courses...</p>
+   </div>
+   <div class="more-btn">
+      <a href="courses.html" class="inline-option-btn">view all courses</a>
+   </div>
+</section>
+
+<footer class="footer">
+   &copy; copyright @ 2026 by <span>LearniX</span> | all rights reserved!
+</footer>
+
+<script src="js/script.js"></script>
 <script>
-   const API_BASE = 'https://wv7pc13r-5000.euw.devtunnels.ms';
-   // Helper: Random Image 1-9
-   function getRandomThumb() {
-      const num = Math.floor(Math.random() * 9) + 1; 
-      return `images/thumb-${num}.png`;
+   const API_BASE = 'https://wv7pc13r-5000.euw.devtunnels.ms'; 
+
+   function logout() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      alert("You have been logged out.");
+      window.location.href = 'home.html';
    }
 
-   document.addEventListener('DOMContentLoaded', () => {
-      const user = getCurrentUser();
-      
+   document.addEventListener('DOMContentLoaded', async () => {
+      const user = getCurrentUser(); 
+
+      // 1. GESTION AFFICHAGE PROFIL & LOGOUT
       if (user) {
-         // Update Hero Section
-         const heroActions = document.getElementById('heroActions');
-         if (heroActions) {
-            heroActions.innerHTML = `
-               <a href="dashboard.html" class="btn hero-btn"><i class="fas fa-chart-line"></i> Dashboard</a>
-               <a href="courses.html" class="option-btn hero-btn"><i class="fas fa-graduation-cap"></i> My Courses</a>
-            `;
-         }
+         document.querySelectorAll('.name').forEach(el => el.textContent = `${user.prenom || ''} ${user.nom || ''}`);
+         document.querySelectorAll('.role').forEach(el => el.textContent = user.role);
          
-         // Update Title
-         const heroTitle = document.querySelector('.home-hero h1');
-         if (heroTitle) {
-            heroTitle.textContent = `Welcome back, ${user.nom}!`;
+         document.querySelectorAll('.logged-in-btns').forEach(el => el.style.display = 'block');
+         document.querySelectorAll('.guest-btns').forEach(el => el.style.display = 'none');
+
+         // 2. ADAPTATION DU BANDEAU
+         document.getElementById('welcome-title').textContent = `Welcome back, ${user.prenom || 'User'}!`;
+         
+         const isTeacher = (user.role === 'enseignant' || user.role === 'teacher');
+         
+         if (isTeacher) {
+             document.getElementById('welcome-text').textContent = "Manage your courses, track student progress, and create inspiring content.";
+             document.getElementById('student-btns').style.display = 'none';
+             document.getElementById('teacher-btns').style.display = 'flex';
+             document.getElementById('student-hero').style.display = 'none';
+             document.getElementById('teacher-hero').style.display = 'block';
          }
 
-         // Fix "Become a Tutor" section (Center it)
-         const ctaSection = document.querySelector('.home-cta');
-         if(ctaSection) {
-            ctaSection.innerHTML = `
-               <div class="cta-box" style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 2rem; padding: 4rem 2rem;">
-                  <div style="max-width: 600px;">
-                     <h2 style="font-size: 3rem; margin-bottom: 1rem;">You are already a member! 🚀</h2>
-                     <p style="font-size: 1.6rem; color: #666; margin-bottom: 2rem;">Go to your dashboard to manage your courses.</p>
-                     <div class="flex-btn" style="justify-content: center;">
-                        <a href="dashboard.html" class="btn">Dashboard</a>
-                        <a href="courses.html" class="option-btn">Browse Courses</a>
-                     </div>
-                  </div>
-               </div>
-            `;
-         }
+      } else {
+         document.querySelectorAll('.logged-in-btns').forEach(el => el.style.display = 'none');
+         document.querySelectorAll('.guest-btns').forEach(el => el.style.display = 'flex');
       }
 
-      loadFeatured();
-   });
-
-   async function loadFeatured() {
-      const container = document.querySelector('.home-featured .box-container');
-      
+      // 3. CHARGEMENT DES COURS
       try {
-         const res = await fetch(`${API_BASE}/api/cours`); 
+         const res = await fetch(`${API_BASE}/api/cours`);
          const courses = await res.json();
-         container.innerHTML = ''; 
-
-         if (courses.length === 0) {
-            container.innerHTML = '<p class="empty">No courses yet!</p>';
-            return;
+         const grid = document.getElementById('coursesGrid');
+         
+         if(grid) {
+             grid.innerHTML = '';
+             const previewCourses = courses.slice(0, 3);
+             
+             if(previewCourses.length === 0) {
+                 grid.innerHTML = '<p class="empty">No courses added yet!</p>';
+             } else {
+                 previewCourses.forEach(course => {
+                    let imgUrl = course.image ? (course.image.startsWith('http') ? course.image : `${API_BASE}/${course.image}`) : 'images/thumb-1.png';
+                    const box = document.createElement('div');
+                    box.className = 'box';
+                    box.innerHTML = `
+                       <div class="thumb">
+                          <img src="${imgUrl}" alt="">
+                          <span>${course.specialite || 'General'}</span>
+                       </div>
+                       <h3 class="title">${course.titre}</h3>
+                       <a href="playlist.html?id=${course._id}" class="inline-btn">view playlist</a>
+                    `;
+                    grid.appendChild(box);
+                 });
+             }
          }
-
-         // Show first 6 courses
-         courses.slice(0, 6).forEach(course => {
-            const teacherName = course.enseignant ? course.enseignant.nom : 'Unknown';
-            
-            // Image Logic
-            let courseImg;
-            if (course.image && course.image.startsWith('http')) {
-               courseImg = course.image;
-            } else if (course.image) {
-               courseImg = `${API_BASE}/${course.image}`;
-            } else {
-               courseImg = getRandomThumb(); // Use Random if none
-            }
-
-            const box = document.createElement('div');
-            box.className = 'box';
-            box.innerHTML = `
-               <div class="tutor">
-                  <img src="images/pic-1.jpg" alt="">
-                  <div class="info">
-                     <h3>${teacherName}</h3>
-                     <span>${new Date(course.createdAt).toLocaleDateString()}</span>
-                  </div>
-               </div>
-               <div class="thumb">
-                  <img src="${courseImg}" alt="" onerror="this.src='${getRandomThumb()}'">
-                  <span>${course.specialite || 'General'}</span>
-               </div>
-               <h3 class="title">${course.titre}</h3>
-               <a href="playlist.html?id=${course._id}" class="inline-btn">view playlist</a>
-            `;
-
-            container.appendChild(box);
-         });
-
-      } catch (err) { 
-         console.error(err); 
-         container.innerHTML = '<p class="empty">Backend not connected</p>';
+      } catch(err) {
+         console.error(err);
       }
-   }
-</script></body>
+   });
+</script>
 
+</body>
 </html>
