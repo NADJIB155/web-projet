@@ -12,8 +12,7 @@ router.post('/', protect, authorize('enseignant'), quizController.createQuiz);
 // POST /api/quizzes/submit (Étudiant seulement)
 router.post('/submit', protect, authorize('etudiant'), quizController.submitQuiz);
 
-// ✅ ROUTE SPÉCIFIQUE : Récupérer un seul quiz par son ID
-// (Doit être avant /:courseId pour ne pas être confondue)
+
 router.get('/detail/:id', protect, quizController.getQuizById);
 
 // DELETE (Prof seulement)

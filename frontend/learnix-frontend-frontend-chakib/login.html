@@ -198,7 +198,7 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
    const role = document.getElementById('role').value;
 
    try {
-      const res = await fetch('https://wv7pc13r-5000.euw.devtunnels.ms/api/auth/login', {
+      const res = await fetch('http://localhost:5000/api/auth/login', {
          method: 'POST',
          headers: { 'Content-Type': 'application/json' },
          body: JSON.stringify({ email, password, role })

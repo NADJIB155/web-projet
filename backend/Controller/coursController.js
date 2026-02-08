@@ -3,7 +3,7 @@ const Cours = require('../models/cours');
 const Etudiant = require('../models/etudiant');
 const Enseignant = require('../models/enseignant');
 
-// 1. CREATE A COURSE (Teacher Only) 👨‍🏫
+// 1. CREATE A COURSE (Teacher Only) 
 exports.createCourse = async (req, res) => {
     try {
         const { titre, description, public_cible, specialite, cle_inscription } = req.body;
@@ -22,7 +22,7 @@ exports.createCourse = async (req, res) => {
             description,
             public_cible,
             specialite,
-            cle_inscription, // On s'assure que la clé est bien enregistrée
+            cle_inscription, 
             image: imagePath,
             enseignant: req.user.id 
         });
@@ -49,7 +49,7 @@ exports.getAllCourses = async (req, res) => {
     }
 };
 
-// 3. ENROLL STUDENT (Version Corrigée & Robuste) ✅
+// 3. ENROLL STUDENT
 exports.enrollStudent = async (req, res) => {
     // On préfère utiliser l'ID du token (plus sécurisé)
     const student_id = req.user ? req.user.id : req.body.student_id;
@@ -62,9 +62,9 @@ exports.enrollStudent = async (req, res) => {
         if (!course) return res.status(404).json({ message: "Course not found" });
 
         // --- LOGS POUR DÉBOGAGE ---
-        console.log(`📝 Inscription pour : ${course.titre}`);
-        console.log(`👤 Student ID : ${student_id}`);
-        console.log(`🔑 Clé DB: '${course.cle_inscription}' | Clé User: '${enrollment_key}'`);
+        console.log(` Inscription pour : ${course.titre}`);
+        console.log(` Student ID : ${student_id}`);
+        console.log(` Clé DB: '${course.cle_inscription}' | Clé User: '${enrollment_key}'`);
 
         // 1. VÉRIFICATION CLÉ (Logique réparée)
         const dbKey = String(course.cle_inscription || "").trim();
@@ -73,7 +73,7 @@ exports.enrollStudent = async (req, res) => {
         // Si le cours A une clé (non vide), on vérifie qu'elle correspond
         if (dbKey !== "") {
             if (dbKey !== userKey) {
-                console.log("❌ Clé incorrecte");
+                console.log(" Clé incorrecte");
                 return res.status(400).json({ message: `Clé invalide !` });
             }
         } 
@@ -86,7 +86,7 @@ exports.enrollStudent = async (req, res) => {
         const isAlreadyEnrolled = course.etudiants_inscrits.some(id => String(id) === String(student_id));
 
         if (isAlreadyEnrolled) {
-            console.log("⚠️ Déjà inscrit (Autorisé)");
+            console.log(" Déjà inscrit (Autorisé)");
             // On renvoie un succès pour que le frontend laisse passer l'utilisateur
             return res.status(200).json({ message: "Vous êtes déjà inscrit !", alreadyEnrolled: true });
         }
@@ -99,11 +99,11 @@ exports.enrollStudent = async (req, res) => {
         
         await course.save();
 
-        console.log("✅ Inscription réussie et sauvegardée.");
+        console.log(" Inscription réussie et sauvegardée.");
         res.status(200).json({ message: "Inscription réussie !" });
 
     } catch (error) {
-        console.error("❌ Erreur serveur:", error);
+        console.error(" Erreur serveur:", error);
         res.status(500).json({ message: error.message });
     }
 };

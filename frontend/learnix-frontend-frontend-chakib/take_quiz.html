@@ -38,8 +38,8 @@
 <script src="js/script.js"></script>
 <script src="js/script.js"></script>
 <script>
-   // ⚠️ Votre URL Tunnel
-   const API_BASE = 'https://wv7pc13r-5000.euw.devtunnels.ms'; 
+   
+   const API_BASE = 'http://localhost:5000'; 
    
    const urlParams = new URLSearchParams(window.location.search);
    const quizId = urlParams.get('id');
@@ -122,10 +122,10 @@
        
        if((score/total) >= 0.5) {
            scoreText.style.color = 'green';
-           msgText.textContent = "Bravo ! Vous avez réussi. 🎉";
+           msgText.textContent = "Bravo ! Vous avez réussi. ";
        } else {
            scoreText.style.color = 'red';
-           msgText.textContent = "Courage, réessayez ! 💪";
+           msgText.textContent = "Courage, réessayez ! ";
        }
 
        document.querySelector('input[type="submit"]').style.display = 'none';

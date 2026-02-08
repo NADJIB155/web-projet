@@ -1,106 +1,57 @@
 const express = require('express');
 const router = express.Router();
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const multer = require('multer'); // ✅ On utilise Multer directement ici
-const path = require('path');
-
-// Import des Modèles
-const Etudiant = require('../models/etudiant');
-const Enseignant = require('../models/enseignant');
-
+const { register, login, verifyEmail } = require('../Controller/authController');
 const { protect } = require('../middleware/authMiddleware');
 
-// --- 1. CONFIGURATION MULTER SPÉCIALE IMAGES ---
-// On crée une configuration spécifique pour les photos de profil
+// Import pour l'upload d'image (Update profile)
+const multer = require('multer');
+const path = require('path');
+const Etudiant = require('../models/etudiant');
+const Enseignant = require('../models/enseignant');
+const bcrypt = require('bcryptjs');
+
+// --- CONFIGURATION MULTER (Pour l'update profile) ---
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, 'uploads/'); // Dossier de destination
+        cb(null, 'uploads/');
     },
     filename: (req, file, cb) => {
-        // Nom du fichier : user-TIMESTAMP.jpg
         cb(null, `user-${Date.now()}${path.extname(file.originalname)}`);
     }
 });
 
-// Filtre pour n'accepter que les images
 const fileFilter = (req, file, cb) => {
     const filetypes = /jpeg|jpg|png/;
     const mimetype = filetypes.test(file.mimetype);
     const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
     if (mimetype && extname) return cb(null, true);
-    cb(new Error('Images seulement (jpeg, jpg, png)!'));
+    cb(new Error('Images seulement !'));
 };
 
 const uploadProfile = multer({ 
     storage: storage,
-    limits: { fileSize: 5 * 1024 * 1024 }, // Limite 5MB
+    limits: { fileSize: 5 * 1024 * 1024 },
     fileFilter: fileFilter
 });
 
+// ==========================================
+// 👇 ICI : ON BRANCHE ENFIN TON CONTROLEUR !
+// ==========================================
 
-// --- 2. ROUTES AUTHENTIFICATION ---
+// 1. REGISTER : Utilise la fonction register de authController.js
+router.post('/register', register);
 
-// REGISTER
-router.post('/register', async (req, res) => {
-    try {
-        const { nom, prenom, email, password, role } = req.body;
-        
-        const Model = role === 'enseignant' ? Enseignant : Etudiant;
+// 2. LOGIN : Utilise la fonction login de authController.js
+router.post('/login', login);
 
-        const userExists = await Model.findOne({ email });
-        if (userExists) return res.status(400).json({ message: "Cet email est déjà utilisé" });
+// 3. VERIFY EMAIL : Utilise la fonction verifyEmail de authController.js
 
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(password, salt);
-
-        const user = await Model.create({
-            nom, prenom, email, role,
-            password: hashedPassword,
-            image: 'images/pic-1.jpg'
-        });
-
-        res.status(201).json({ message: "Compte créé avec succès !" });
-    } catch (err) {
-        res.status(500).json({ message: err.message });
-    }
-});
-
-// LOGIN
-router.post('/login', async (req, res) => {
-    try {
-        const { email, password, role } = req.body;
-        const Model = role === 'enseignant' ? Enseignant : Etudiant;
-
-        const user = await Model.findOne({ email });
-        if (!user) return res.status(400).json({ message: "Identifiants invalides" });
-
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) return res.status(400).json({ message: "Identifiants invalides" });
-
-        const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, {
-            expiresIn: '30d'
-        });
-
-        res.json({
-            token,
-            user: {
-                id: user._id,
-                nom: user.nom,
-                prenom: user.prenom,
-                email: user.email,
-                role: user.role,
-                image: user.image
-            }
-        });
-    } catch (err) {
-        res.status(500).json({ message: err.message });
-    }
-});
+router.get('/verify/:token', verifyEmail);
 
 
-// --- 3. UPDATE PROFILE (CORRIGÉ) ---
-// ✅ On utilise uploadProfile.single('image') qui est défini dans ce fichier
+// ==========================================
+// ROUTE UPDATE (On garde ta logique existante qui marchait)
+// ==========================================
 router.put('/update', protect, uploadProfile.single('image'), async (req, res) => {
     try {
         const Model = req.user.role === 'enseignant' ? Enseignant : Etudiant;
@@ -108,22 +59,19 @@ router.put('/update', protect, uploadProfile.single('image'), async (req, res) =
 
         if (!user) return res.status(404).json({ message: "Utilisateur non trouvé" });
 
-        // Mise à jour textes
         user.nom = req.body.nom || user.nom;
         user.prenom = req.body.prenom || user.prenom;
         user.email = req.body.email || user.email;
 
-        // Mise à jour Image
         if (req.file) {
-            // On normalise le chemin (remplace \ par / pour Windows)
             user.image = req.file.path.replace(/\\/g, "/"); 
         }
 
-        // Mise à jour Mot de passe
         if (req.body.new_password && req.body.old_password) {
             const isMatch = await bcrypt.compare(req.body.old_password, user.password);
             if (!isMatch) return res.status(400).json({ message: "Ancien mot de passe incorrect" });
             
+            // Note: Si tu ajoutes le hook dans le modèle, tu n'auras plus besoin de hasher ici manuellement
             const salt = await bcrypt.genSalt(10);
             user.password = await bcrypt.hash(req.body.new_password, salt);
         }
@@ -144,7 +92,7 @@ router.put('/update', protect, uploadProfile.single('image'), async (req, res) =
 
     } catch (error) {
         console.error("Erreur update:", error);
-        res.status(500).json({ message: "Erreur serveur lors de la mise à jour" });
+        res.status(500).json({ message: "Erreur serveur" });
     }
 });
 

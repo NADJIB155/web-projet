@@ -25,13 +25,13 @@ const createTeacher = async () => {
             domaine: 'Informatique'
         });
 
-        console.log('✅ Teacher Created Successfully!');
+        console.log('Teacher Created Successfully!');
         console.log('ID:', teacher._id);
         console.log('Login: prof@test.com / 123456');
 
         process.exit();
     } catch (error) {
-        console.error('❌ Error creating teacher:', error.message);
+        console.error(' Error creating teacher:', error.message);
         process.exit(1);
     }
 };

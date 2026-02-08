@@ -58,8 +58,8 @@
 
 <script src="js/script.js"></script>
 <script>
-   // ⚠️ IMPORTANT : Vérifiez votre port
-   const API_BASE = 'https://wv7pc13r-5000.euw.devtunnels.ms'; 
+   
+   const API_BASE = 'http://localhost:5000'; 
 
    document.addEventListener('DOMContentLoaded', async () => {
       const urlParams = new URLSearchParams(window.location.search);
@@ -125,7 +125,7 @@
       }
    });
 
-   // 🔥 FONCTION D'INSCRIPTION AVEC CLÉ
+   // FONCTION D'INSCRIPTION AVEC CLÉ
    async function enrollCourse(courseId) {
       const user = getCurrentUser();
       const token = localStorage.getItem('token');
@@ -138,7 +138,7 @@
       }
 
       // 1. Demander la clé
-      const key = prompt("🔒 Enter the Enrollment Key provided by your teacher:");
+      const key = prompt(" Enter the Enrollment Key provided by your teacher:");
       if (key === null) return; // Annulé
       if (key.trim() === "") {
          alert("Key is required!");
@@ -163,16 +163,16 @@
          const data = await res.json();
 
          if (res.ok) {
-            alert("✅ Enrollment Successful! Welcome to the course.");
+            alert(" Enrollment Successful! Welcome to the course.");
             window.location.href = `playlist.html?id=${courseId}`;
          } else {
-            alert("❌ Failed: " + data.message);
+            alert(" Failed: " + data.message);
          }
          if (searchQuery) {
             const term = searchQuery.toLowerCase().trim();
             
             courses = courses.filter(c => {
-               // 🛡️ CRASH PROTECTION: Use || "" to handle missing data
+               // CRASH PROTECTION: Use || "" to handle missing data
                const title = (c.titre || "").toLowerCase();
                const specialite = (c.specialite || "").toLowerCase();
                const teacherName = c.enseignant && c.enseignant.nom ? c.enseignant.nom.toLowerCase() : "";

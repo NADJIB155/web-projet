@@ -1,26 +1,27 @@
 const nodemailer = require('nodemailer');
 
 const sendEmail = async (options) => {
-    // 1. Configuration du transporteur (Gmail)
+    
     const transporter = nodemailer.createTransport({
-        service: 'gmail',
+        host: 'smtp.gmail.com',
+        port: 465,
+        secure: true, 
         auth: {
-            user: process.env.SMTP_EMAIL, // Ton email
-            pass: process.env.SMTP_PASSWORD // Ton mot de passe d'application (16 lettres)
+            user: 'hanadjib70@gmail.com', 
+            pass: 'gugfsblywjebomfc'      
         }
     });
 
-    // 2. Options du message
-    const mailOptions = {
-        from: `LearniX <${process.env.SMTP_EMAIL}>`,
+    const message = {
+        from: 'LearniX <hanadjib70@gmail.com>',
         to: options.email,
         subject: options.subject,
-        html: options.message // Important : html, pas text
+        html: options.html
     };
 
-    // 3. Envoi
-    await transporter.sendMail(mailOptions);
-    console.log(`✅ Email envoyé avec succès à : ${options.email}`);
+    console.log(" Envoi de l'email via Gmail en cours...");
+    await transporter.sendMail(message);
+    console.log("Email envoyé avec succès !");
 };
 
 module.exports = sendEmail;

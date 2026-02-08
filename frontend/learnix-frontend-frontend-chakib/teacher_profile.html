@@ -79,13 +79,13 @@
 <script src="js/script.js"></script>
 <script src="js/script.js"></script>
 <script>
-   // ⚠️ Votre URL Tunnel
-   const API_BASE = 'https://wv7pc13r-5000.euw.devtunnels.ms'; 
+   
+   const API_BASE = 'http://localhost:5000'; 
 
    document.addEventListener('DOMContentLoaded', async () => {
       const urlParams = new URLSearchParams(window.location.search);
       const teacherId = urlParams.get('id');
-      const token = localStorage.getItem('token'); // ✅ On récupère le token
+      const token = localStorage.getItem('token'); 
       
       const currentUser = getCurrentUser(); 
 

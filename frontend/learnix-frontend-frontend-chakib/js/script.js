@@ -130,11 +130,11 @@ window.onscroll = () => {
 // 7. AUTHENTICATION & USER STATE
 // ============================
 // ⚠️ IMPORTANT: Use your Tunnel URL (same as other files)
-const API_URL = 'https://wv7pc13r-5000.euw.devtunnels.ms/api'; 
+const API_URL = 'http://localhost:5000/api'; 
 
 document.addEventListener('DOMContentLoaded', () => {
     const token = localStorage.getItem('token');
-    // Use empty object {} as fallback to prevent crash if user is null
+    // On récupère l'objet user, ou un objet vide si rien n'existe
     const user = JSON.parse(localStorage.getItem('user')) || {};
     
     // Select Elements
@@ -142,48 +142,46 @@ document.addEventListener('DOMContentLoaded', () => {
     const profileRole = document.querySelectorAll('.role');
     const profileImages = document.querySelectorAll('.profile .image');
     
+    // ... (Tes sélecteurs de boutons restent ici) ...
     const headerGuestBtns = document.getElementById('headerGuestBtns');
     const headerUserBtns = document.getElementById('headerUserBtns');
-    const headerViewProfile = document.getElementById('headerViewProfile');
-    
-    const sideGuestOptions = document.querySelector('.guest-options');
-    const sideUserOptions = document.querySelector('.user-options');
-    const sideViewProfile = document.querySelector('.view-profile-btn');
+    // ... etc ...
 
-    if (token && user.email) {
+    // 2️⃣ CORRECTION CONDITION : On vérifie juste le Token !
+    // Si on a un token, on est connecté. Pas besoin de vérifier l'email ici.
+    if (token) {
         // --- USER IS LOGGED IN ---
         
-        // 1. Update Name
-        profileName.forEach(el => el.textContent = user.nom + ' ' + (user.prenom || ''));
+        // Affichage Nom (Sécurité : si nom vide, mettre 'User')
+        const displayName = (user.nom || 'User') + ' ' + (user.prenom || '');
+        profileName.forEach(el => el.textContent = displayName);
 
-        // 2. ✅ FIX ROLE DISPLAY (This was your main error)
-        // If role is 'enseignant' OR 'teacher', show Teacher. Otherwise Student.
-        const roleDisplay = (user.role === 'enseignant' || user.role === 'teacher') ? 'Teacher' : 'Student';
-        profileRole.forEach(el => el.textContent = roleDisplay);
+        // Affichage Rôle (Correction Enseignant/Teacher)
+        let roleAffiche = 'Student'; // Par défaut
+        if (user.role === 'enseignant' || user.role === 'teacher') {
+            roleAffiche = 'Teacher';
+        }
+        profileRole.forEach(el => el.textContent = roleAffiche);
 
-        // 3. ✅ FIX IMAGE URL
+        // Affichage Image
         if(user.image) {
-            // Remove /api from base URL for images
+            // On enlève /api pour avoir la racine http://localhost:5000
             const cleanBase = API_URL.replace('/api', '');
-            // Check if image is already a full link (http) or a relative path (uploads/...)
             const imgPath = user.image.startsWith('http') ? user.image : `${cleanBase}/${user.image}`;
             
             profileImages.forEach(img => {
                 img.src = imgPath;
-                // Add error handler if image fails to load
                 img.onerror = function() { this.src = 'images/pic-1.jpg'; };
             });
         }
 
-        // 4. UI Visibility (LoggedIn)
+        // ... (Reste du code pour afficher/cacher les boutons) ...
         if(headerGuestBtns) headerGuestBtns.style.display = 'none';
         if(headerUserBtns) headerUserBtns.style.display = 'block';
-        
         if(sideGuestOptions) sideGuestOptions.style.display = 'none';
         if(sideUserOptions) sideUserOptions.style.display = 'block';
 
-        if(headerViewProfile) headerViewProfile.style.display = 'inline-block';
-        if(sideViewProfile) sideViewProfile.style.display = 'inline-block';
+    
 
     } else {
         // --- GUEST MODE ---

@@ -193,8 +193,8 @@
    const grid = document.getElementById('teacherGrid');
    const meta = document.getElementById('teacherSearchMeta');
 
-   // ⚠️ FIXED: Use your Tunnel URL (same as Dashboard)
-   const API_BASE = 'https://wv7pc13r-5000.euw.devtunnels.ms';
+   
+   const API_BASE = 'http://localhost:5000';
 
    function getTeacherCards(){
       return Array.from(grid.querySelectorAll('.teacher-card'));
@@ -211,11 +211,10 @@
    // 1. Fetch and Display Teachers
    // 1. Fetch and Display Teachers (Corrected URL)
    async function loadTeachers() {
-      // ⚠️ IMPORTANT: Use your Tunnel URL (same as Dashboard)
-      const API_BASE = 'https://wv7pc13r-5000.euw.devtunnels.ms'; 
+      
+      const API_BASE = 'http://localhost:5000'; 
 
       try {
-         // ✅ FIXED: Added '/api' prefix to match server routes
          const res = await fetch(`${API_BASE}/api/enseignant`);
          
          if(!res.ok) throw new Error(`HTTP Error: ${res.status}`);
