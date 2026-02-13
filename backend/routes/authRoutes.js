@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { register, login, verifyEmail } = require('../Controller/authController');
+const { register, login, verifyEmail  , deleteUser  } = require('../Controller/authController');
 const { protect } = require('../middleware/authMiddleware');
 
 // Import pour l'upload d'image (Update profile)
@@ -35,7 +35,7 @@ const uploadProfile = multer({
 });
 
 // ==========================================
-// 👇 ICI : ON BRANCHE ENFIN TON CONTROLEUR !
+//  ON BRANCHE LE CONTROLLER
 // ==========================================
 
 // 1. REGISTER : Utilise la fonction register de authController.js
@@ -50,7 +50,7 @@ router.get('/verify/:token', verifyEmail);
 
 
 // ==========================================
-// ROUTE UPDATE (On garde ta logique existante qui marchait)
+// ROUTE UPDATE 
 // ==========================================
 router.put('/update', protect, uploadProfile.single('image'), async (req, res) => {
     try {
@@ -96,4 +96,24 @@ router.put('/update', protect, uploadProfile.single('image'), async (req, res) =
     }
 });
 
+
+// --- ROUTE ADMIN : Récupérer tous les utilisateurs ---
+router.get('/all-users', async (req, res) => {
+    try {
+        const etudiants = await Etudiant.find({}).select('-password');
+        const enseignants = await Enseignant.find({}).select('-password');
+
+        // On fusionne les listes
+        const users = [
+            ...enseignants.map(u => ({ ...u._doc, type: u.role })), // Enseignants + Admin
+            ...etudiants.map(u => ({ ...u._doc, type: 'etudiant' })) // Etudiants
+        ];
+
+        res.json(users);
+    } catch (error) {
+        res.status(500).json({ message: "Erreur serveur" });
+    }
+});
+
+router.delete('/users/:id/:type', deleteUser);
 module.exports = router;

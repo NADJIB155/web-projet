@@ -40,7 +40,7 @@ const protect = async (req, res, next) => {
     }
 };
 
-// Middleware pour restreindre l'accès à certains rôles (ex: Prof seulement)
+// Middleware pour restreindre l'accès à certains rôles 
 const authorize = (...roles) => {
     return (req, res, next) => {
         if (!req.user || !roles.includes(req.user.role)) {

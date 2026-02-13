@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Admin Dashboard - LearniX</title>
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css">
+   <link rel="stylesheet" href="css/style.css">
+   <style>
+       /* Styles spécifiques Admin */
+       .table-container { background: var(--white); padding: 2rem; border-radius: .5rem; overflow-x: auto; margin-bottom: 5rem;}
+       table { width: 100%; border-collapse: collapse; min-width: 600px; }
+       th, td { padding: 1.5rem; text-align: left; border-bottom: 1px solid #eee; font-size: 1.6rem; color: var(--black); }
+       th { background: var(--light-bg); font-weight: bold; }
+       
+       /* Badges de rôle */
+       .badge { padding: .5rem 1rem; border-radius: .5rem; color: #fff; font-size: 1.4rem; font-weight: bold; }
+       .badge.admin { background: #e74c3c; } /* Rouge */
+       .badge.enseignant { background: #8e44ad; } /* Violet */
+       .badge.etudiant { background: #27ae60; } /* Vert */
+
+       /* Bouton Supprimer */
+       .btn-del { 
+           background: #e74c3c; 
+           color: #fff; 
+           border: none; 
+           padding: .8rem 1.5rem; 
+           border-radius: .5rem; 
+           cursor: pointer; 
+           font-size: 1.4rem;
+           transition: .2s;
+       }
+       .btn-del:hover { background: #c0392b; transform: scale(1.05); }
+   </style>
+</head>
+<body>
+
+<header class="header">
+   <section class="flex">
+      <a href="#" class="logo">LearniX <span style="color:var(--red)">ADMIN</span></a>
+      <div class="icons">
+         <div id="user-btn" class="fas fa-user"></div>
+         <div id="toggle-btn" class="fas fa-sun"></div>
+      </div>
+      <div class="profile">
+         <h3 class="name">Administrateur</h3>
+         <button onclick="logout()" class="delete-btn" style="width:100%; margin-top:1rem;">Déconnexion</button>
+      </div>
+   </section>
+</header>
+
+<section class="dashboard">
+   <h1 class="heading">Tableau de Bord</h1>
+   <div class="box-container">
+      <div class="box">
+         <h3>Total Utilisateurs</h3>
+         <p id="total-users" style="font-size: 3rem; font-weight: bold;">0</p>
+      </div>
+      <div class="box">
+         <h3>Étudiants</h3>
+         <p id="total-students" style="font-size: 3rem; font-weight: bold; color: #27ae60;">0</p>
+      </div>
+      <div class="box">
+         <h3>Enseignants</h3>
+         <p id="total-teachers" style="font-size: 3rem; font-weight: bold; color: #8e44ad;">0</p>
+      </div>
+   </div>
+</section>
+
+<section class="user-profile">
+    <h1 class="heading">Gestion des Utilisateurs</h1>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Nom & Prénom</th>
+                    <th>Email</th>
+                    <th>Rôle</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="user-table">
+                <tr><td colspan="4" style="text-align:center;">Chargement...</td></tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<script src="js/script.js"></script>
+<script>
+    const API = 'http://localhost:5000/api';
+
+    // 1. Charger les données au démarrage
+    document.addEventListener('DOMContentLoaded', async () => {
+        // Vérif Admin
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (!user || user.role !== 'admin') {
+            alert("Accès refusé !");
+            window.location.href = 'login.html';
+            return;
+        }
+
+        loadUsers();
+    });
+
+    // 2. Fonction pour récupérer et afficher les utilisateurs
+   async function loadUsers() {
+        try {
+            const res = await fetch(`${API}/auth/all-users`);
+            const users = await res.json();
+
+            // Stats (Sécurisées aussi)
+            document.getElementById('total-users').innerText = users.length;
+            document.getElementById('total-students').innerText = users.filter(u => (u.type || u.role) === 'etudiant').length;
+            document.getElementById('total-teachers').innerText = users.filter(u => (u.type || u.role) === 'enseignant').length;
+
+            // Remplir le tableau
+            const tbody = document.getElementById('user-table');
+            tbody.innerHTML = ''; 
+
+            if(users.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4">Aucun utilisateur trouvé.</td></tr>';
+                return;
+            }
+
+            users.forEach(u => {
+                // 👇 SÉCURITÉ : Si pas de rôle, on met 'user' par défaut
+                const userRole = u.role ? u.role : 'user'; 
+                const userType = u.type || userRole; 
+                
+                // On prépare l'affichage (Si pas d'image, image par défaut)
+                const userImg = u.image ? `http://localhost:5000/${u.image}` : 'images/pic-1.jpg';
+
+                // Bouton supprimer (sauf pour l'admin)
+                const deleteButton = userRole === 'admin' 
+                    ? '<span style="color:#aaa;">-</span>' 
+                    : `<button class="btn-del" onclick="deleteUser('${u._id}', '${userType}')">Supprimer</button>`;
+
+                const row = `
+                    <tr>
+                        <td>
+                            <div style="display:flex; align-items:center; gap:1rem;">
+                                <img src="${userImg}" 
+                                     style="width:40px; height:40px; border-radius:50%; object-fit:cover;">
+                                <span>${u.nom || 'Inconnu'} ${u.prenom || ''}</span>
+                            </div>
+                        </td>
+                        <td>${u.email || 'Pas d\'email'}</td>
+                        <td><span class="badge ${userRole}">${userRole.toUpperCase()}</span></td>
+                        <td>${deleteButton}</td>
+                    </tr>
+                `;
+                tbody.innerHTML += row;
+            });
+
+        } catch (e) { 
+            console.error("Erreur chargement:", e);
+            document.getElementById('user-table').innerHTML = '<tr><td colspan="4" style="color:red;">Erreur JS (Voir Console)</td></tr>';
+        }
+    }
+
+    // 3. Fonction SUPPRIMER (Appelée par le bouton)
+    async function deleteUser(id, type) {
+        if(!confirm("Êtes-vous sûr de vouloir supprimer cet utilisateur ? Cette action est irréversible.")) {
+            return;
+        }
+
+        try {
+            const res = await fetch(`${API}/auth/users/${id}/${type}`, {
+                method: 'DELETE'
+            });
+
+            const data = await res.json();
+
+            if (res.ok) {
+                alert("Utilisateur supprimé ! 🗑️");
+                loadUsers(); // On recharge le tableau pour voir le changement
+            } else {
+                alert("Erreur: " + data.message);
+            }
+        } catch (e) {
+            console.error(e);
+            alert("Erreur serveur lors de la suppression.");
+        }
+    }
+
+    function logout() {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = 'login.html';
+    }
+</script>
+
+</body>
+</html>

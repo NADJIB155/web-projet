@@ -195,29 +195,38 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
    e.preventDefault();
    const email = document.getElementById('email').value;
    const password = document.getElementById('password').value;
-   const role = document.getElementById('role').value;
+   // On se fiche du rôle sélectionné dans le HTML, le backend gère tout
 
    try {
       const res = await fetch('http://localhost:5000/api/auth/login', {
          method: 'POST',
          headers: { 'Content-Type': 'application/json' },
-         body: JSON.stringify({ email, password, role })
+         body: JSON.stringify({ email, password })
       });
       const data = await res.json();
 
       if (res.ok) {
          localStorage.setItem('token', data.token);
-         localStorage.setItem('user', JSON.stringify(data.user || { role }));
-         if (typeof showToast === 'function') {
-            showToast("Login Successful! 🎉");
+         localStorage.setItem('user', JSON.stringify(data.user));
+
+         if (typeof showToast === 'function') showToast("Connexion réussie ! ");
+         else alert("Connexion réussie ! ");
+
+         //  LA REDIRECTION 
+         if (data.user.role === 'admin') {
+             window.location.href = 'admin.html'; // Vers le Dashboard Admin
+         } else if (data.user.role === 'enseignant') {
+             window.location.href = 'teacher_profile.html'; // Vers profil Prof
          } else {
-            alert("Login Successful! 🎉");
+             window.location.href = 'home.html'; // Vers accueil Etudiant
          }
-         window.location.href = role === 'enseignant' ? 'teacher_profile.html' : 'home.html';
       } else {
-         alert("Error: " + data.message);
+         alert("Erreur: " + data.message);
       }
-   } catch (err) { alert("Server Error. Is Backend running?"); }
+   } catch (err) { 
+       console.error(err);
+       alert("Erreur serveur. Backend lancé ?"); 
+   }
 });
 </script>
 </body>

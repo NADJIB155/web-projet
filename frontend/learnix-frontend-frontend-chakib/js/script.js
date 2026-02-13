@@ -129,12 +129,10 @@ window.onscroll = () => {
 // ============================
 // 7. AUTHENTICATION & USER STATE
 // ============================
-// ⚠️ IMPORTANT: Use your Tunnel URL (same as other files)
 const API_URL = 'http://localhost:5000/api'; 
 
 document.addEventListener('DOMContentLoaded', () => {
     const token = localStorage.getItem('token');
-    // On récupère l'objet user, ou un objet vide si rien n'existe
     const user = JSON.parse(localStorage.getItem('user')) || {};
     
     // Select Elements
@@ -142,30 +140,26 @@ document.addEventListener('DOMContentLoaded', () => {
     const profileRole = document.querySelectorAll('.role');
     const profileImages = document.querySelectorAll('.profile .image');
     
-    // ... (Tes sélecteurs de boutons restent ici) ...
+    // 👇 VOICI LES LIGNES QU'IL MANQUAIT (C'est ça ton erreur ReferenceError)
     const headerGuestBtns = document.getElementById('headerGuestBtns');
     const headerUserBtns = document.getElementById('headerUserBtns');
-    // ... etc ...
+    const sideGuestOptions = document.querySelector('.guest-options');
+    const sideUserOptions = document.querySelector('.user-options');
+    const headerViewProfile = document.getElementById('headerViewProfile');
+    const sideViewProfile = document.querySelector('.view-profile-btn');
 
-    // 2️⃣ CORRECTION CONDITION : On vérifie juste le Token !
-    // Si on a un token, on est connecté. Pas besoin de vérifier l'email ici.
     if (token) {
-        // --- USER IS LOGGED IN ---
-        
-        // Affichage Nom (Sécurité : si nom vide, mettre 'User')
+        // --- CONNECTÉ ---
         const displayName = (user.nom || 'User') + ' ' + (user.prenom || '');
         profileName.forEach(el => el.textContent = displayName);
 
-        // Affichage Rôle (Correction Enseignant/Teacher)
-        let roleAffiche = 'Student'; // Par défaut
-        if (user.role === 'enseignant' || user.role === 'teacher') {
-            roleAffiche = 'Teacher';
-        }
+        let roleAffiche = 'Student';
+        if (user.role === 'enseignant' || user.role === 'teacher') roleAffiche = 'Teacher';
+        else if (user.role === 'admin') roleAffiche = 'Admin'; // Ajout pour l'admin
+        
         profileRole.forEach(el => el.textContent = roleAffiche);
 
-        // Affichage Image
         if(user.image) {
-            // On enlève /api pour avoir la racine http://localhost:5000
             const cleanBase = API_URL.replace('/api', '');
             const imgPath = user.image.startsWith('http') ? user.image : `${cleanBase}/${user.image}`;
             
@@ -175,26 +169,21 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // ... (Reste du code pour afficher/cacher les boutons) ...
+        // Afficher/Cacher les boutons
         if(headerGuestBtns) headerGuestBtns.style.display = 'none';
         if(headerUserBtns) headerUserBtns.style.display = 'block';
         if(sideGuestOptions) sideGuestOptions.style.display = 'none';
         if(sideUserOptions) sideUserOptions.style.display = 'block';
 
-    
-
     } else {
-        // --- GUEST MODE ---
+        // --- VISITEUR (GUEST) ---
         profileName.forEach(el => el.textContent = "Guest");
         profileRole.forEach(el => el.textContent = "Student");
         
-        // UI Visibility (Guest)
         if(headerGuestBtns) headerGuestBtns.style.display = 'flex';
         if(headerUserBtns) headerUserBtns.style.display = 'none';
-
         if(sideGuestOptions) sideGuestOptions.style.display = 'block';
         if(sideUserOptions) sideUserOptions.style.display = 'none';
-
         if(headerViewProfile) headerViewProfile.style.display = 'none';
         if(sideViewProfile) sideViewProfile.style.display = 'none';
     }

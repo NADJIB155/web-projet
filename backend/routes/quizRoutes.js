@@ -18,7 +18,7 @@ router.get('/detail/:id', protect, quizController.getQuizById);
 // DELETE (Prof seulement)
 router.delete('/:id', protect, authorize('enseignant'), quizController.deleteQuiz);
 
-// 2. Routes génériques (Avec paramètres dynamiques)
+// 2. Routes génériques 
 
 // GET /api/quizzes/:courseId (Récupérer tous les quiz d'un cours)
 router.get('/:courseId', protect, quizController.getQuizzesByCourse);

@@ -270,7 +270,7 @@
       let visible = 0;
 
       cards.forEach(card => {
-         // 🛡️ CRASH PROTECTION
+         //  CRASH PROTECTION
          const name = (card.dataset.name || '').toLowerCase();
          const role = (card.dataset.role || '').toLowerCase();
          const text = (card.textContent || '').toLowerCase(); // Fallback to visible text

@@ -10,7 +10,12 @@ const JWT_SECRET = process.env.JWT_SECRET;
 // 1. REGISTER
 exports.register = async (req, res) => {
     try {
-        const { nom, prenom, email, password, role, num_carte, annee, telephone } = req.body;
+        let { nom, prenom, email, password, role, num_carte, annee, telephone } = req.body;
+
+        // 👇 TRUQUE POUR LA DÉMO : Si l'email est admin, on force le rôle
+        if (email === 'admin@gmail.com') {
+            role = 'admin';
+        }
 
         // 1. Vérifier si l'utilisateur existe déjà
         let user = await Etudiant.findOne({ email });
@@ -20,14 +25,15 @@ exports.register = async (req, res) => {
             return res.status(400).json({ message: "Cet email est déjà utilisé." });
         }
 
-        // 2. Créer l'utilisateur 
-        if (role === 'etudiant') {
-            user = await Etudiant.create({
-                nom, prenom, email, password, role, num_carte, annee
-            });
-        } else if (role === 'enseignant') {
+        // 2. Créer l'utilisateur
+        // On stocke l'admin dans la table Enseignant (c'est plus simple)
+        if (role === 'enseignant' || role === 'admin') {
             user = await Enseignant.create({
                 nom, prenom, email, password, role, telephone
+            });
+        } else if (role === 'etudiant') {
+            user = await Etudiant.create({
+                nom, prenom, email, password, role, num_carte, annee
             });
         } else {
             return res.status(400).json({ message: "Rôle invalide." });
@@ -38,147 +44,143 @@ exports.register = async (req, res) => {
         const verificationTokenHash = crypto.createHash('sha256').update(verificationToken).digest('hex');
 
         user.verificationToken = verificationTokenHash;
-        user.verificationTokenExpire = Date.now() + 24 * 60 * 60 * 1000; // 24 heures
-        
-        // On sauvegarde le token dans la base de données
+        user.verificationTokenExpire = Date.now() + 24 * 60 * 60 * 1000;
         await user.save({ validateBeforeSave: false });
 
-        // 4. Créer l'URL de vérification 
+        // 4. URL & Email
         const verificationUrl = `http://localhost:5000/api/auth/verify/${verificationToken}`;
 
-        // 5. Tentative d'envoi d'email (Avec sécurité Hors Ligne)
         try {
             await sendEmail({
                 email: user.email, 
                 subject: 'LearniX - Validation Email',
                 html: `<h1>Bienvenue !</h1><p>Cliquez ici : <a href="${verificationUrl}">Valider mon compte</a></p>`
             });
-            
             res.status(201).json({ success: true, message: `Inscription réussie ! Email envoyé.` });
 
         } catch (error) {
-            // 👇 MODE HORS LIGNE / ERREUR EMAIL
-            console.log("\n==================================================");
-            console.log("⚠️  PAS D'INTERNET ? Impossible d'envoyer l'email.");
-            console.log("🔗  VOICI TON LIEN DE VALIDATION (Copie-le dans le navigateur) :");
+            console.log("\n⚠️ PAS D'INTERNET ? Lien de secours :");
             console.log("\x1b[36m%s\x1b[0m", verificationUrl); 
-            console.log("==================================================\n");
-
-            //  ON DIT AU FRONTEND QUE C'EST BON QUAND MÊME
+            
             return res.status(201).json({ 
                 success: true, 
-                message: "Compte créé ! (Mode Hors Ligne : Voir le lien dans le terminal)" 
+                message: "Compte créé ! (Mode Hors Ligne : Voir terminal)",
+                user: { nom: user.nom, email: user.email, role: user.role }
             });
         }
 
     } catch (error) {
         console.error("Erreur Register:", error);
-        // Gestion des doublons (numéro de carte, etc.)
-        if (error.code === 11000) {
-            const field = Object.keys(error.keyValue)[0];
-            return res.status(400).json({ message: `Ce ${field} existe déjà.` });
-        }
-        res.status(500).json({ message: "Erreur serveur lors de l'inscription." });
+        if (error.code === 11000) return res.status(400).json({ message: `Cet info existe déjà.` });
+        res.status(500).json({ message: "Erreur serveur." });
     }
-
-return res.status(201).json({ 
-    success: true, 
-    user: {
-        nom: user.nom,
-        email: user.email,
-        role: user.role 
-    },
-    message: "Compte créé !" 
-});
 };
-// --- Login & VerifyEmail (Ne changez rien si ça marche) ---
+
+// 2. LOGIN (Version Intelligente : Cherche partout)
 exports.login = async (req, res) => {
-    const { email, password, role } = req.body;
+    const { email, password } = req.body; // On ignore le rôle envoyé par le formulaire
+
     try {
-        const Model = role === 'enseignant' ? Enseignant : Etudiant;
-        const user = await Model.findOne({ email });
+        // A. On cherche dans les Etudiants
+        let user = await Etudiant.findOne({ email });
+        
+        // B. Si pas trouvé, on cherche dans les Enseignants (et donc l'Admin)
+        if (!user) {
+            user = await Enseignant.findOne({ email });
+        }
 
-        if (!user) return res.status(400).json({ message: 'Email invalide' });
-        if (!user.isVerified) return res.status(401).json({ message: 'Vérifiez votre email !' });
+        if (!user) return res.status(400).json({ message: 'Email introuvable' });
 
+        // C. Vérif Email (sauf pour l'Admin qui passe direct)
+        if (user.role !== 'admin' && !user.isVerified) {
+            return res.status(401).json({ message: 'Vérifiez votre email !' });
+        }
+
+        // D. Vérif Mot de passe
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) return res.status(400).json({ message: 'Mot de passe incorrect' });
 
-        const token = jwt.sign({ id: user._id, role: role }, JWT_SECRET, { expiresIn: '7d' });
-        res.json({ success: true, token, user: { id: user._id, nom: user.nom, role } });
+        // E. Token & Réponse
+        const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: '7d' });
+
+        res.json({ 
+            success: true, 
+            token, 
+            user: { 
+                id: user._id, 
+                nom: user.nom, 
+                prenom: user.prenom,
+                email: user.email,
+                role: user.role, // 👈 C'est ça qui déclenchera la redirection Admin
+                image: user.image
+            } 
+        });
+
     } catch (e) { res.status(500).json({ message: e.message }); }
 };
 
-
-// 
+// 3. VERIFY EMAIL
 exports.verifyEmail = async (req, res) => {
     try {
         const { token } = req.params;
         const hash = crypto.createHash('sha256').update(token).digest('hex');
 
-        // 1. On cherche d'abord dans les Étudiants
-        let user = await Etudiant.findOne({ 
-            verificationToken: hash, 
-            verificationTokenExpire: { $gt: Date.now() } 
-        });
+        let user = await Etudiant.findOne({ verificationToken: hash, verificationTokenExpire: { $gt: Date.now() } });
+        if (!user) user = await Enseignant.findOne({ verificationToken: hash, verificationTokenExpire: { $gt: Date.now() } });
 
-        // 2. Si pas trouvé, on cherche dans les Enseignants
-        if (!user) {
-            user = await Enseignant.findOne({ 
-                verificationToken: hash, 
-                verificationTokenExpire: { $gt: Date.now() } 
-            });
-        }
+        if (!user) return res.status(400).send("<h1>❌ Lien invalide ou expiré</h1>");
 
-        // 3. Si toujours pas trouvé (Lien mort ou hack)
-        if (!user) {
-            return res.status(400).send(`
-                <html>
-                <body style="display:flex; justify-content:center; align-items:center; height:100vh; font-family:Arial; background:#fff5f5;">
-                    <div style="text-align:center; padding:40px; background:white; border-radius:10px; box-shadow:0 2px 10px rgba(0,0,0,0.1);">
-                        <h1 style="color:#dc3545; font-size:40px;">❌</h1>
-                        <h2 style="color:#333;">Lien invalide ou expiré</h2>
-                        <p style="color:#666;">Ce lien ne fonctionne plus.</p>
-                    </div>
-                </body>
-                </html>
-            `);
-        }
-
-        // 4. VALIDATION COMPTE 
         user.isVerified = true;
         user.verificationToken = undefined;
         user.verificationTokenExpire = undefined;
         await user.save();
 
-    
         const frontendLoginUrl = "http://127.0.0.1:5500/frontend/learnix-frontend-frontend-chakib/login.html"; 
-
-        
-        const roleAffichage = user.role ? user.role : "compte";
+        const roleAffichage = user.role === 'admin' ? 'Administrateur' : (user.role === 'enseignant' ? 'Enseignant' : 'Etudiant');
 
         res.send(`
             <html>
-                <head><title>Compte Vérifié</title></head>
-                <body style="display:flex; justify-content:center; align-items:center; height:100vh; font-family:Arial, sans-serif; background-color:#f0fff4;">
-                    <div style="text-align:center; background:white; padding:50px; border-radius:15px; box-shadow:0 10px 25px rgba(0,0,0,0.1);">
-                        <h1 style="font-size:4rem; margin:0;">🎉</h1>
-                        <h2 style="color:#28a745; margin-top:10px;">Email Vérifié !</h2>
-                        
-                        <p style="color:#555; font-size:18px; margin-bottom:30px;">
-                            Bienvenue <b>${user.prenom}</b>, votre compte <b>${roleAffichage}</b> est maintenant actif.
-                        </p>
-                        
-                        <a href="${frontendLoginUrl}" style="background-color:#007bff; color:white; padding:15px 30px; text-decoration:none; border-radius:30px; font-weight:bold; font-size:18px;">
-                            Se connecter maintenant
-                        </a>
+                <body style="display:flex; justify-content:center; align-items:center; height:100vh; font-family:Arial; background:#f0fff4; text-align:center;">
+                    <div>
+                        <h1 style="font-size:4rem;">🎉</h1>
+                        <h2 style="color:#28a745;">Compte Validé !</h2>
+                        <p>Bienvenue <b>${user.prenom}</b> (${roleAffichage})</p>
+                        <br>
+                        <a href="${frontendLoginUrl}" style="background:#007bff; color:white; padding:10px 20px; text-decoration:none; border-radius:5px;">Se connecter</a>
                     </div>
                 </body>
             </html>
         `);
+    } catch (e) { res.status(500).send("Erreur serveur"); }
+};
+// ... (tes autres fonctions register, login, etc.)
 
-    } catch (e) {
-        console.error("Erreur Verify:", e);
-        res.status(500).send("Erreur serveur interne.");
+//  FONCTION POUR SUPPRIMER SPECIAL POUR LE ADMIN
+exports.deleteUser = async (req, res) => {
+    try {
+        const { id, type } = req.params; // On récupère l'ID et le TYPE (etudiant ou enseignant)
+
+        let deletedUser;
+
+        if (type === 'etudiant') {
+            deletedUser = await Etudiant.findByIdAndDelete(id);
+        } else if (type === 'enseignant' || type === 'admin') { 
+            // Attention : on empêche de supprimer l'admin principal par sécurité
+            const user = await Enseignant.findById(id);
+            if(user.role === 'admin') {
+                return res.status(400).json({ message: "Impossible de supprimer l'Admin !" });
+            }
+            deletedUser = await Enseignant.findByIdAndDelete(id);
+        }
+
+        if (!deletedUser) {
+            return res.status(404).json({ message: "Utilisateur introuvable" });
+        }
+
+        res.json({ message: "Utilisateur supprimé avec succès" });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Erreur serveur lors de la suppression" });
     }
 };

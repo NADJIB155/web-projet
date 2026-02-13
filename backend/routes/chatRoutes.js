@@ -5,7 +5,7 @@ const Message = require('../models/message');
 const { protect } = require('../middleware/authMiddleware');
 
 // ============================================================
-// 1. ROUTE SPÉCIFIQUE (DOIT ÊTRE EN PREMIER !!!)
+// 1. ROUTE SPÉCIFIQUE 
 // ============================================================
 router.get('/inbox/all', protect, async (req, res) => {
     try {

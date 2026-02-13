@@ -130,7 +130,7 @@
          document.getElementById('totalCourses').textContent = teacherCourses.length;
          document.getElementById('totalStudents').textContent = totalStudents;
 
-         // 4. Stats Quizzes (✅ CORRECTION ICI : Ajout du Token)
+         // 4. Stats Quizzes
          let totalQuizzes = 0;
          
          const quizPromises = teacherCourses.map(course => 
@@ -225,10 +225,10 @@
          const data = await res.json();
 
          if (res.ok || data.alreadyEnrolled) {
-            alert("✅ Enrollment Successful!");
+            alert(" Enrollment Successful!");
             window.location.reload(); 
          } else {
-            alert("❌ Failed: " + (data.message || "Error"));
+            alert(" Failed: " + (data.message || "Error"));
          }
       } catch (err) {
          alert("Server Error. Try again.");

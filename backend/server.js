@@ -6,7 +6,7 @@ const connectDB = require("./config/db");
 const app = express();
 
 // ==========================================
-// 1. MIDDLEWARES (CORS SPÉCIAL TUNNEL)
+// 1. MIDDLEWARES 
 // ==========================================
 app.use(cors({
     origin: '*', // <--- AUTORISE TOUT LE MONDE (Mobile, Tunnel, PC)
